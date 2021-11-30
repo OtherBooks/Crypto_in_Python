@@ -65,9 +65,6 @@
   <p>
     Graphically:
   </p>
-  <p>
-    \begin{adjustbox}{center}
-  </p>
   <image>
 <latex-image>
 <![CDATA[\begin{tikzpicture}\path (0,0) node[place,draw] (gen) {Genesis block:
@@ -97,9 +94,6 @@ data\\
 \draw[<-*] (two) to [out=90,in=270] node[above,sloped] {hash of} (dots);\end{tikzpicture}]]>
 </latex-image>
   </image>
-  <p>
-    \end{adjustbox}
-  </p>
   <p>
     The security properties of cryptographic hash function
         <idx><h>hash function</h></idx>

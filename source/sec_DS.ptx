@@ -199,9 +199,6 @@
     <p>
       <term>Naive digital signatures:</term>
     </p>
-    <p>
-      \begin{adjustbox}{center}
-    </p>
     <tabular>
       <row bottom="minor">
         <cell></cell>
@@ -303,9 +300,6 @@
         <cell></cell>
       </row>
     </tabular>
-    <p>
-      \end{adjustbox}
-    </p>
     <question xml:id="az_naiveDS">
       <statement>
         <p>
@@ -649,9 +643,6 @@
       or the <c>hexdigest()</c> method to get that same hash value as a character string written out in hexadecimal.
       For example:
     </p>
-    <p>
-      \begin{adjustbox}{center}
-    </p>
 <program><input>>>> from Crypto.Hash import SHA256
 >>> hash_object = SHA256.new(b'first bit of data')
 >>> hash_object.update(b'some more data')
@@ -661,9 +652,6 @@ b':\x93"P`\xd2Y-\x8c/\xab\xfa=\x8e\xa7\xb7N\xdcF\xae[\xf9\xa4\xd
 6.\xa1\xfeR\xe4\xcb\x89\xb8'
 >>> hash_object.hexdigest()
 3a93225060d2592d8c2fabfa3d8ea7b74edc46ae5bf9a4d62ea1fe52e4cb89b8</input></program>
-    <p>
-      \end{adjustbox}
-    </p>
     <p>
       Note that you can get the <c>digest</c> from a <c>SHA256</c><idx><h>SHA256 [Python class]@<c>SHA256</c> [Python class]</h></idx>
           <idx><h>Python</h><h>SHA256 class@<c>SHA256</c> class</h></idx>
@@ -731,9 +719,6 @@ b':\x93"P`\xd2Y-\x8c/\xab\xfa=\x8e\xa7\xb7N\xdcF\xae[\xf9\xa4\xd
     </p>
     <p>
       <term>Better [smaller] digital signatures with hashing:</term>
-    </p>
-    <p>
-      \begin{adjustbox}{center}
     </p>
     <tabular>
       <row bottom="minor">
@@ -846,9 +831,6 @@ b':\x93"P`\xd2Y-\x8c/\xab\xfa=\x8e\xa7\xb7N\xdcF\xae[\xf9\xa4\xd
         <cell></cell>
       </row>
     </tabular>
-    <p>
-      \end{adjustbox}
-    </p>
     <question xml:id="az_DSwithhashing">
       <statement>
         <p>

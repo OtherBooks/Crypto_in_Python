@@ -67,9 +67,6 @@
         <idx><h>asymmetric cryptosystem</h></idx>
     s:</term>
   </p>
-  <p>
-    \begin{adjustbox}{center}
-  </p>
   <tabular>
     <row bottom="minor">
       <cell></cell>
@@ -197,9 +194,6 @@
       <cell></cell>
     </row>
   </tabular>
-  <p>
-    \end{adjustbox}
-  </p>
   <p>
     There is also a person-in-the-middle attack<idx><h>person-in-the-middle attack</h></idx> on digital signature
         <idx><h>digital signature</h></idx>

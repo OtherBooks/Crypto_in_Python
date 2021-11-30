@@ -39,9 +39,6 @@
   <p>
     <nbsp/> <term>Symmetric [private-key] cryptosystem, graphically:</term>
   </p>
-  <p>
-    \begin{adjustbox}{center}
-  </p>
   <tabular>
     <row bottom="minor">
       <cell></cell>
@@ -144,9 +141,6 @@
     </row>
   </tabular>
   <p>
-    \end{adjustbox}
-  </p>
-  <p>
     The problem we're dealing with now is the initial private agreement of the secret key
         <idx><h>key</h></idx>
     <m>k</m>.
@@ -192,9 +186,6 @@
   </p>
   <p>
     <term>Asymmetric [public-key] cryptosystem, graphically:</term>
-  </p>
-  <p>
-    \begin{adjustbox}{center}
   </p>
   <tabular>
     <row bottom="minor">
@@ -314,9 +305,6 @@
       <cell></cell>
     </row>
   </tabular>
-  <p>
-    \end{adjustbox}
-  </p>
   <question xml:id="az_asymmetricCS">
     <statement>
       <p>

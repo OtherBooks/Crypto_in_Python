@@ -157,9 +157,6 @@
           <idx><h>RSA [Python class in Crypto.PublicKey module]@<c>RSA</c> [Python class in <c>Crypto.PublicKey</c> module]</h></idx>
       class:
     </p>
-    <p>
-      \begin{adjustbox}{center}
-    </p>
 <program><input>>>> from Crypto.PublicKey import RSA
 >>> key = RSA.generate(1024)
 >>> key.exportKey()
@@ -178,9 +175,6 @@ Z+YAvln8pBIQhpXbNeB29iE/lW+ECQFWB\nxqshIdp02k3TgD97qnp9ZnQa3
 Jho/se5hA+KiTxYR18VBfLAQEIByjAU3LHANYU3\nYwLHW1NtPXHsDtkU7pk
 CQQC4N+Q/IHEY/Sc+fvha5x8zdWmGwODheGJ6Q2i6GN+I\n9LvYjKW5hZ1Gi
 rUBjonzNi1vrQsaaVZatRsLa1iwTRIa\n-----END RSA PRIVATE KEY-----'</input></program>
-    <p>
-      \end{adjustbox}
-    </p>
     <p>
       Notice a couple of things about this:
       <ul>
@@ -395,9 +389,6 @@ rUBjonzNi1vrQsaaVZatRsLa1iwTRIa\n-----END RSA PRIVATE KEY-----'</input></program
           <idx><h>Python</h></idx>
       }. Here's how (continuing from an example given above):
     </p>
-    <p>
-      \begin{adjustbox}{center}
-    </p>
 <program><input>>>> from Crypto.PublicKey import RSA
 >>> key = RSA.generate(1024)
 >>> key.exportKey()
@@ -423,9 +414,6 @@ QKBgQDRpxdIHxJTpuM3R/mHKurOrAXn\nJ5a/nlucxvst3lpHVcs9Yv+QTTtOrD
 Vvgs7BBq2pdjODOYxEmAX2GGDuJIFMKZ8S\ne2ZUGWeJZ0sJolUoANQ0ihIjD7z
 vFz40kuWLU7imSMOlQpWk35lyN2BR4I6DvAo6\nf4JKzEJ1l2wuig+75QIDAQAB
 \n-----END PUBLIC KEY-----'</input></program>
-    <p>
-      \end{adjustbox}
-    </p>
     <p>
       If you use this public key
           <idx><h>public key</h></idx>
@@ -535,9 +523,6 @@ vFz40kuWLU7imSMOlQpWk35lyN2BR4I6DvAo6\nf4JKzEJ1l2wuig+75QIDAQAB
       rather than generating a new one, just for consistency),
       which we could create with
     </p>
-    <p>
-      \begin{adjustbox}{center}
-    </p>
 <program><input>>>> from Crypto.PublicKey import RSA
 >>> public_key = RSA.importKey(b'-----BEGIN PUBLIC KEY-----\nMIGf
 MA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDRpxdIHxJTpuM3R/mHKurOrAXn\nJ5a
@@ -545,18 +530,12 @@ MA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDRpxdIHxJTpuM3R/mHKurOrAXn\nJ5a
 ZUGWeJZ0sJolUoANQ0ihIjD7zvFz40kuWLU7imSMOlQpWk35lyN2BR4I6DvAo6\nf
 4JKzEJ1l2wuig+75QIDAQAB\n-----END PUBLIC KEY-----')</input></program>
     <p>
-      \end{adjustbox}
-    </p>
-    <p>
       We can then use the <c>encrypt</c> method of this <c>public_key</c> object to do encryption.
       But note first that <c>encrypt</c> has a second argument,
       just for backwards compatibility with earlier versions of this module,
       which must be some long integer that is actually completely ignored.
       Notice also that the return value of <c>encrypt</c> is a tuple,
       the first element of which is the byte string of the ciphertext, so:
-    </p>
-    <p>
-      \begin{adjustbox}{center}
     </p>
 <program><input>>>> ciphertext = public_key.encrypt(b'This is a test',1)[0]
 >>> print(ciphertext)
@@ -568,13 +547,9 @@ xf2\xee\xfc\xec\xd7\xfc\xfd\xe0\xf1\xcc\x12\x8fZ\xad\xf0|n@\xe
 8vD\xb48}a\xd8^\xdb#\xbb\x01\x8e\x8c\x1a;[\x8e\xfd@\xc1\xb8Ohw
 \xc4\x15'</input></program>
     <p>
-      \end{adjustbox}
-    </p>
-    <p>
       As we mentioned above,
       this <c>public_key</c> object cannot do decryption.
-      In fact, if you try it,
-      you will get some error like \begin{adjustbox}{center}
+      In fact, if you try it, you will get some error like
     </p>
 <program><input>>>> public_key.decrypt(ciphertext)
 Traceback (most recent call last):
@@ -589,9 +564,6 @@ File "/usr/lib/python3/dist-packages/Crypto/PublicKey/RSA.py
 ", line 239, in _decrypt
 mp = self.key._decrypt(cp)
 TypeError: Private key not available in this object</input></program>
-    <p>
-      \end{adjustbox}
-    </p>
     <p>
       On the other hand,
       if we still had the <c>key</c> object around,
@@ -745,7 +717,7 @@ b'This is a test'</input></program>
       in
       <q>OAEP</q>
           <idx><h>Optimal Asymmetric Encryption Padding [OAEP]</h></idx>
-          <idx><h>OAEP, Optimal Asymmetric Encryption Padding</h></idx> <mdash/> we make a PKCS #1 cipher object by feeding it an RSA key object: \begin{adjustbox}{center}
+          <idx><h>OAEP, Optimal Asymmetric Encryption Padding</h></idx> <mdash/> we make a PKCS #1 cipher object by feeding it an RSA key object:
     </p>
 <program><input>>>> # Bob does:
 >>> from Crypto.PublicKey import RSA
@@ -774,9 +746,6 @@ x8b'
 >>> cleared_text = cipher_for_decryption.decrypt(ciphertext)
 >>> print(cleared_text)
 b'This is a test. This is only a test.'</input></program>
-    <p>
-      \end{adjustbox}
-    </p>
     <p>
       Notice a couple of things about this:
       <ul>
@@ -1017,9 +986,6 @@ b'This is a test. This is only a test.'</input></program>
       <term>Fast and secure,
       session key-based communication, graphically:</term>
     </p>
-    <p>
-      \begin{adjustbox}{center}
-    </p>
     <tabular>
       <row bottom="minor">
         <cell></cell>
@@ -1219,9 +1185,6 @@ b'This is a test. This is only a test.'</input></program>
         <cell></cell>
       </row>
     </tabular>
-    <p>
-      \end{adjustbox}
-    </p>
     <question xml:id="az_sessionbased">
       <statement>
         <p>
