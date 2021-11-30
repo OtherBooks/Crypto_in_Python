@@ -1,0 +1,277 @@
+<section xml:id="sec_Ssh">
+  <title>Some speculative history</title>
+  <p>
+    Perhaps there was a form of deception that preceded language <mdash/> certainly many a house pet has feigned innocence despite the clear evidence of involvement in stealing treats.
+    And even apiologists may not know if some lazy bees make up a story about a long excursion to a new flower patch when their Queen demands an accounting.
+  </p>
+  <p>
+    But among <em>homo sapiens</em>,
+    probably as soon as there was language, there was lying.
+    Of course, when two humans are face to face,
+    both parties have some control, such as:
+    the listener can make an attempt to evaluate the trustworthiness of speaker,
+    they can both form their own judgments of the other's identity and therefore choose what they wish to share with each other,
+    and the words of the speaker pass directly from their lips to the listener's ears without the possibility of change of meaning in flight
+    (absent considerations of ambient noise and so on).
+  </p>
+  <p>
+    A great deal changed with the invention of writing more than 5000 years ago.
+    Words frozen in physical form,
+    and the ideas they represent,
+    can be taken and shared with a wide range of parties other than those with whom the original author wanted to communicate.
+    In addition,
+    if an author is not able to hand her work directly to the intended reader and instead the written words are out in the world on their own for a while,
+    then both intended communicants can no longer be sure that the other is who the writing claims them to be nor that the writing remains the unchanged symbols that the other party originally set down.
+  </p>
+  <p>
+    Let us formalize some of these issues of {information security
+        <idx><h>information security</h></idx>
+    } (as it is called now),
+    in the context of a message to be sent from someone named <em>Alice</em>
+    to someone named <em>Bob</em>.
+    The role of the possibly disruptive and overly intrusive environment is played in our little drama by <em>Eve</em>.
+    (Traditionally one skips directly to a character whose name starts with <em>E</em>
+    to symbolize both the <em>environment</em>
+    and also someone who is potentially an
+    <em>eavesdropper</em><fn>
+    <em>Eavesdropper</em> apparently comes from the Old English {yfesdrype
+        <idx><h>yfesdrype</h></idx>
+    }, meaning literally <em>one who stands on the eavesdrop</em>
+    [ground where water drips from the eaves of the roof]
+    <em>to listen to conversations inside a house.</em>
+    </fn>.)
+    Note that another way to think of what Eve is doing is listening to what is going by on some unfortunately
+    (maybe unintentionally)
+    public <em>communications channel</em>
+    that Alice and Bob are using.
+  </p>
+  <p>
+    Here is some basic terminology:
+  </p>
+  <definition xml:id="def_confidentiality">
+    <statement>
+      <p>
+        <term>Confidentiality</term>
+            <idx><h>confidentiality</h></idx>
+        means that only the intended recipient can extract the content of the message <mdash/> Alice wants only Bob to get her message and not Eve,
+        no matter if she listens on the eavesdrop or intercepts the message as it travels in some form from Alice to Bob.
+      </p>
+    </statement>
+  </definition>
+  <definition xml:id="def_integrity">
+    <statement>
+      <p>
+        Message <term>integrity</term>
+            <idx><h>integrity</h></idx>
+        means that the recipient can be sure the message was not altered <mdash/> Bob wants to know that what he gets is what Alice wrote,
+        not what the mischievous Eve intended to change it into.
+      </p>
+    </statement>
+  </definition>
+  <definition xml:id="def_authentication">
+    <statement>
+      <p>
+        Sender <term>authentication</term>
+            <idx><h>authentication</h></idx>
+        means that the recipient can determine from the message the identity of the sender <mdash/> Bob wants to be sure this message did in fact originate with Alice.
+      </p>
+    </statement>
+  </definition>
+  <definition xml:id="def_non-repudiation">
+    <statement>
+      <p>
+        Sender <term>non-repudiation</term>
+            <idx><h>non-repudiation</h></idx>
+        means that the sender should not be able to deny sending that message <mdash/> Bob wants to be able to hold Alice to her promises.
+      </p>
+    </statement>
+  </definition>
+  <p>
+    Note that Alice and Bob may actually be the same person sending a message from a past self to their future self.
+    For example,
+    someone may want to keep records which must be <em>confidential</em>
+    and whose <em>integrity</em> must be reliable,
+    even if there is a break-in to the site keeping those records.
+  </p>
+  <p>
+    In fact, information storage can always be thought of,
+    in this way,
+    as an attempted communication from the past to the future via a channel that may unexpectedly become public if,
+    for example,
+    your laptop is stolen or someone breaks into your business and steals the hard drive from your server.
+    Unless you can be absolutely sure that in all possible futures,
+    no bad actor will ever possibly have physical access to your computer,
+    it's always a good idea to encrypt all of your data on your personal devices!
+  </p>
+  <p>
+    Before we go on, a few more technical terms:
+  </p>
+  <definition xml:id="def_clearplaintext">
+    <statement>
+      <p>
+            <idx><h>cleartext</h></idx>
+            <idx><h>plaintext</h></idx>
+        The message that Alice wishes to send to Bob, in its actual original form is called the <term>plaintext</term>.
+      </p>
+    </statement>
+  </definition>
+  <definition xml:id="def_encryptioncipher">
+    <statement>
+      <p>
+            <idx><h>encryption</h></idx>
+            <idx><h>cipher</h></idx>
+        An algorithm that Alice uses to transform (scramble, obfuscate) the plaintext into a form that will remain confidential even if observed by Eve while in flight is called a <term>cipher</term>.
+        We also say that Alice <term>encrypts</term> the (plaintext) message.
+      </p>
+    </statement>
+  </definition>
+  <definition xml:id="def_ciphertext">
+    <statement>
+      <p>
+            <idx><h>ciphertext</h></idx>
+        The encrypted form of a plaintext message is called the <term>ciphertext</term>.
+      </p>
+    </statement>
+  </definition>
+  <definition xml:id="def_decrypt">
+    <statement>
+      <p>
+            <idx><h>cipheterxt</h></idx>
+        When Bob receives the ciphertext, he applies another algorithm to <term>decrypt</term>
+            <idx><h>decryption</h></idx>
+        it and recover the plaintext.
+      </p>
+    </statement>
+  </definition>
+  <p>
+    {<term>Basic crypto terminology, graphically:</term>}
+  </p>
+  <tabular>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell><term>Alice</term></cell>
+      <cell>\ <nbsp/>on public network/channel<nbsp/><nbsp/></cell>
+      <cell><term>Bob</term></cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell>(where <term>Eve</term> is watching)</cell>
+      <cell></cell>
+    </row>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell><nbsp/><nbsp/><nbsp/><term>plaintext</term>/<term>cleartext</term><nbsp/><nbsp/></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>message <m>m</m></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell><term>encrypts</term> <m>m</m> to <m>c</m></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>transmits <m>c</m></cell>
+      <cell><nbsp/><m>\rightarrowtail\ \ \</m><term>ciphertext</term><nbsp/><m>c\ \ \ \rightarrowtail</m><nbsp/><nbsp/><nbsp/></cell>
+      <cell>receives <m>c</m></cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell></cell>
+      <cell><term>decrypts</term> <m>c</m> to</cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell></cell>
+      <cell>\ <nbsp/> recover plaintext <m>m</m><nbsp/><nbsp/><nbsp/></cell>
+    </row>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+  </tabular>
+  <p>
+    Hundreds of years of experience with cryptology have shown,
+    again and again, that a cryptosystem which one person dreams up,
+    thinking they have invented a system with wonderfully strong security,
+    may easily fall to cryptanalysis done by someone else.
+    So it has gradually come to be understood that the best way to make sure one is using a really solid cryptosystem is to share the algorithms widely and publicly,
+    so that others in the community can try to break them.
+    As is said in the FLOSS<fn>
+    <q>FLOSS</q>
+    =''Free/Libre/Open-Source Software, '' a better term than just
+    <q>open source</q>
+    </fn> community: <em>with enough eyes,
+    all bugs are shallow</em>.
+    Therefore, we should only trust a cryptosystem if its security remains strong even after everyone has tried their best to break it!
+  </p>
+  <p>
+    If the algorithm is public, how does it provide any security at all?
+    The answer is that the algorithm may be public,
+    but it is designed to take as input one more piece of information,
+    beyond just the plaintext to encrypt or the ciphertext to decrypt:
+  </p>
+  <definition xml:id="def_key">
+    <statement>
+      <p>
+            <idx><h>key</h></idx>
+        Additional information (some of which is) used in encryption and (some of) which is necessary for successful decryption is called a <term>key</term>.
+      </p>
+    </statement>
+  </definition>
+  <p>
+    Think of a key
+        <idx><h>key</h></idx>
+    as something that Alice uses to lock her message in a box,
+    the box being the message as it is transmitted over a public network and even possibly seen by Eve,
+    and then used by Bob to unlock the box and find out what the actual message was that Alice wanted to send.
+    Clearly, the keys must be kept carefully secret for the cryptosystem to do its job of protecting Alice and Bob's communications from the eavesdropping Eve!
+  </p>
+  <p>
+    This idea <mdash/> that the security of a cryptosystem should be based on the secrecy of the key but not of the algorithm <mdash/> has come to be called
+    <term>Kerckhoff's Principle</term>,
+        <idx><h>Kerckhoff's Principle</h></idx>
+    after a set of cryptosystem design ideas written down in 1883 by a French military cryptographer.
+    The opposite of a system made with Kerckhoff's Principle in mind is one whose algorithms are simply kept secret,
+    and in which it is very foolish to place any trust:
+    such weak systems are said to reply upon the ill-advised
+    <term>security through obscurity</term><idx><h>security through obscurity</h></idx> paradigm.
+  </p>
+  <question xml:id="az_SSHbasic">
+    <statement>
+      <p>
+        Does all of this make sense?
+        What was new or interesting, or what was old and uninteresting?
+      </p>
+    </statement>
+  </question>
+  <question xml:id="az_SSHAliceandBob">
+    <statement>
+      <p>
+        Can you think of an example not mentioned above where the terms like
+        <term>confidentiality</term>,
+        <term>integrity</term>, <term>authentication</term>,
+        and/or <term>non-repudiation</term>
+        could be used to describe something you've read about or experienced?
+        Or else, can you think of a situation where these kinds of information security concepts apply to some version of <term>Alice</term>,
+        <term>Bob</term>, <term>Eve</term>,
+        and a <term>public channel</term>?
+        <mdash/> if so,
+        say what that situation was and what corresponded to each of those characters.
+      </p>
+    </statement>
+  </question>
+</section>

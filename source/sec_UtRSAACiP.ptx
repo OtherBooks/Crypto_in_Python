@@ -1,0 +1,1574 @@
+<section xml:id="sec_UtRSAACiP">
+  <title>Using the RSA asymmetric cryptosystem in Python</title>
+  <introduction>
+    <p>
+          <idx><h>asymmetric cryptosystem</h></idx>
+          <idx><h>RSA cryptosystem</h></idx>
+          <idx><h>cryptosystem</h><h>RSA</h></idx>
+      One of the oldest and still most widely used<fn>
+      In a sense, this is unfortunate:
+      to get the same security with RSA
+          <idx><h>cryptosystem</h><h>RSA</h></idx>
+          <idx><h>RSA cryptosystem</h></idx>
+      as with elliptic curve cryptosystem<idx><h>elliptic curve cryptosystem</h></idx>
+      s, much larger keys must be used and so the computations are significantly slower.
+      The advantage of RSA
+          <idx><h>cryptosystem</h><h>RSA</h></idx>
+          <idx><h>RSA cryptosystem</h></idx>
+      is probably that it is based on mathematics that is at the level of advanced undergraduates,
+      while elliptic curve cryptosystems are based on mathematics at the graduate level.
+      </fn> asymmetric cryptosystem
+          <idx><h>asymmetric cryptosystem</h></idx>
+      s is know as <term>RSA</term>
+          <idx><h>cryptosystem</h><h>RSA</h></idx>,
+          <idx><h>RSA cryptosystem</h></idx>
+      so named in honor of its three inventors: Ron <term>R</term>ivest,
+          <idx><h>Rivest, Ron</h></idx>
+      Adi <term>S</term>hamir,
+          <idx><h>Shamir, Adi</h></idx>
+      and Leonard <term>A</term>dleman.
+          <idx><h>Adleman, Leonard</h></idx>
+      We're going to use a {{<term>Python</term>
+          <idx><h>Python</h></idx>
+      }} implementation of RSA
+          <idx><h>cryptosystem</h><h>RSA</h></idx>
+          <idx><h>RSA cryptosystem</h></idx>
+      to explore the basic features of using asymmetric cryptosystem
+          <idx><h>asymmetric cryptosystem</h></idx>
+      s such as key generation,
+          <idx><h>key</h><h>generation</h></idx>
+      encryption,
+          <idx><h>encryption</h></idx>
+      and decryption,
+          <idx><h>decryption</h></idx>
+      first in an entirely straightforward way that is not entirely secure.
+      Then we will revisit these basic functions in a slightly more complex configuration that is actually secure.
+    </p>
+  </introduction>
+  <subsection xml:id="ssec_UtRSAaciP_SncsRSAiP">
+    <title>Straightforward <mdash/> not completely secure! <mdash/> RSA in {\terminology{Python}\index{Python}}</title>
+    <p>
+          <idx><h>cryptosystem</h><h>RSA</h></idx>
+          <idx><h>RSA cryptosystem</h></idx>
+    </p>
+    <p>
+      The {{<term>Python</term>
+          <idx><h>Python</h></idx>
+      }} module <c>Crypto</c><idx><h>Crypto [Python module]@<c>Crypto</c> [Python module]</h></idx>
+          <idx><h>Python</h><h>Crypto module@<c>Crypto</c> module</h></idx>
+      has a submodule <c>Crypto.PublicKey</c><idx><h>Crypto [Python module]@<c>Crypto</c> [Python module]</h><h>Crypto.PublicKey@<c>Crypto.PublicKey</c></h></idx>
+          <idx><h>Python</h><h>Crypto.PublicKey module@<c>Crypto.PublicKey</c> module</h></idx>
+      which implements a class <c>RSA</c><idx><h>Crypto.PublicKey [Python module]@<c>Crypto.PublicKey</c> [Python module]</h><h>RSA@<c>RSA</c></h></idx>
+          <idx><h>Python</h><h>RSA class in Crypto.PublicKey module@<c>RSA</c> class in <c>Crypto.PublicKey</c> module</h></idx>
+          <idx><h>RSA [Python class in Crypto.PublicKey module]@<c>RSA</c> [Python class in <c>Crypto.PublicKey</c> module]</h></idx>.
+      You can use this class by the usual
+    </p>
+<program><input>from Crypto.PublicKey import RSA</input></program>
+    <p>
+      The first thing to do with an <c>RSA</c> object is to generate a new one,
+      using<idx><h>Crypto.PublicKey [Python module]@<c>Crypto.PublicKey</c> [Python module]</h><h>RSA@<c>RSA</c></h></idx>
+          <idx><h>Python</h><h>RSA class in Crypto.PublicKey module@<c>RSA</c> class in <c>Crypto.PublicKey</c> module</h></idx>
+          <idx><h>RSA [Python class in Crypto.PublicKey module]@<c>RSA</c> [Python class in <c>Crypto.PublicKey</c> module]</h></idx>
+    </p>
+<program><input>key=RSA.generate(n)</input></program>
+    <p>
+      where <c>n</c> is the number of bits in
+      (part of)
+      the key.
+      The values allowed for this parameter must be at least 1024, and must be a multiple of 256.
+    </p>
+    <p>
+      As is often the case, the larger the key,
+      the more secure is the cryptosystem but the slower are the calculations to generate the key<idx><h>key</h><h>generation!RSA</h></idx> and also to do encryption
+          <idx><h>encryption</h></idx>
+      and decryption.
+          <idx><h>decryption</h></idx>
+      Common values one sees in use today are 1024 and 2048,
+      although also 4096 is not unusual.
+    </p>
+    <exercise xml:id="ct_timingRSAkeygen">
+      <statement>
+        <p>
+          Write a Python function <c>timeRSAkeygen(n)</c> which takes as input a key
+              <idx><h>key</h></idx>
+          size
+              <idx><h>key</h><h>size</h></idx>
+           <c>n</c> and generates 100 RSA
+              <idx><h>cryptosystem</h><h>RSA</h></idx>
+              <idx><h>RSA cryptosystem</h></idx>
+          key
+              <idx><h>key</h></idx>
+          s of that size.
+              <idx><h>key</h><h>size</h></idx>
+          Time how long each key generation takes,
+          using the approach to measuring execution time in Code Task<nbsp/> <xref ref="ct_howfastAES"></xref>,
+          and append that new execution time to a list. <c>timeRSAkeygen(n)</c> should then return the average of that list of 100 times.
+        </p>
+        <p>
+          Then run that program <c>timeRSAkeygen(n)</c> for the key
+              <idx><h>key</h></idx>
+          sizes
+              <idx><h>key</h><h>size</h></idx>
+          which start at 1024 and go up to 4096 in steps of 256 <mdash/> that is,
+          for values of <c>n</c> ranging over the list <c>[x for x in range(1024,4097,256)]</c> <mdash/> and print out for each key
+              <idx><h>key</h></idx>
+          size<idx><h>key</h><h>size</h></idx> the average key generation time produced by <c>timeRSAkeygen(n)</c> for that key<idx><h>key</h></idx> size.
+              <idx><h>key</h><h>size</h></idx>
+        </p>
+      </statement>
+    </exercise>
+    <problem xml:id="bt_timingRSAkeygenplot">
+      <statement>
+        <p>
+          Make a plot of the timing information you just gathered.
+          That is, for each key length,
+          you computed the average amount of time it took per generation of a key<idx><h>key</h><h>generation!RSA</h></idx> of that size
+              <idx><h>key</h><h>size</h></idx>
+          over 100 times.
+          Now make a line plot where the <m>x</m> values are those key
+              <idx><h>key</h></idx>
+          sizes
+              <idx><h>key</h><h>size</h></idx>
+          and the corresponding <m>y</m> values are the average key generation
+              <idx><h>key</h><h>generation</h></idx>
+          times for that size key.
+              <idx><h>key</h><h>size</h></idx>
+          Make sure your graph has a title and <m>x</m>- and <m>y</m>-axis labels.
+        </p>
+        <p>
+          If you are not familiar with making simple line plots in {<term>Python</term>
+              <idx><h>Python</h></idx>
+          }, just do a search for
+          <q><c>python line plot</c></q>
+          and there will be literally hundreds of pages with quick-start guides to making line plots with <c>matplotlib.pyplot</c><idx><h>matplotlib.pyplot@<c>matplotlib.pyplot</c></h></idx>,
+          many including code that you can copy and easily adapt.
+        </p>
+      </statement>
+    </problem>
+    <p>
+      Let's look at one of those keys generated with <c>RSA.generate</c>,
+          <idx><h>key</h><h>generation!RSA</h></idx>
+      using a method <c>exportKey</c><fn>
+      This method may be called <c>export_key</c> if you are using a different version of the <c>Crypto</c><idx><h>Crypto [Python module]@<c>Crypto</c> [Python module]</h></idx>
+          <idx><h>Python</h><h>Crypto module@<c>Crypto</c> module</h></idx>
+      module.
+      </fn> of the <c>RSA</c><idx><h>Crypto.PublicKey [Python module]@<c>Crypto.PublicKey</c> [Python module]</h><h>RSA@<c>RSA</c></h></idx>
+          <idx><h>Python</h><h>RSA class in Crypto.PublicKey module@<c>RSA</c> class in <c>Crypto.PublicKey</c> module</h></idx>
+          <idx><h>RSA [Python class in Crypto.PublicKey module]@<c>RSA</c> [Python class in <c>Crypto.PublicKey</c> module]</h></idx>
+      class:
+    </p>
+    <p>
+      \begin{adjustbox}{center}
+    </p>
+<program><input>>>> from Crypto.PublicKey import RSA
+>>> key = RSA.generate(1024)
+>>> key.exportKey()
+b'-----BEGIN RSA PRIVATE KEY-----\nMIICXQIBAAKBgQDRpxdIHxJTp
+uM3R/mHKurOrAXnJ5a/nlucxvst3lpHVcs9Yv+Q\nTTtOrDVvgs7BBq2pdjO
+DOYxEmAX2GGDuJIFMKZ8Se2ZUGWeJZ0sJolUoANQ0ihIj\nD7zvFz40kuWLU
+7imSMOlQpWk35lyN2BR4I6DvAo6f4JKzEJ1l2wuig+75QIDAQAB\nAoGAQsK
+HamLijhq1fdQAhGdJMBidJJd5rHj7yTefomKMsuyB9IFCyiuduBakSWcI\n+
+XRr9mt6Sc4YeXtDYrMuooajWQ6Ltg8sGqjpDtrYzPILiVgN8fXz1R2TKAePr
+ZUO\nKazRnkMN6QcgX1xilfXFtr3Q2OB67dpnVwK3mtAI3E6tZ4ECQQDZWho
+gDB3+xkkO\nES0mH0DtyeEbLSknAF84/xSylD58vVYvwWGma4dHEmZcjKEob
+c8dQQrndBm8jVQS\niDblKjhhAkEA9u6EZfk+JqeuoUleirRI5X1Kwvy8jo7
+7kEf3noVBE3Eve9eJgcX2\nO+ZrAWke3tKqqu6+Tdy9AKkgl1s5EdfiBQJBA
+K3My7k2l0Gj4sT53SVvtmaumG83\nxIFoXbxg1Hcb7X+nkuRq+R+vOiQNxYZ
+Z+YAvln8pBIQhpXbNeB29iE/lW+ECQFWB\nxqshIdp02k3TgD97qnp9ZnQa3
+Jho/se5hA+KiTxYR18VBfLAQEIByjAU3LHANYU3\nYwLHW1NtPXHsDtkU7pk
+CQQC4N+Q/IHEY/Sc+fvha5x8zdWmGwODheGJ6Q2i6GN+I\n9LvYjKW5hZ1Gi
+rUBjonzNi1vrQsaaVZatRsLa1iwTRIa\n-----END RSA PRIVATE KEY-----'</input></program>
+    <p>
+      \end{adjustbox}
+    </p>
+    <p>
+      Notice a couple of things about this:
+      <ul>
+        <li>
+          <title>invalidlabel</title>
+          <p>
+            Apparently this is a <term>private key</term>
+              <idx><h>key</h><h>private</h></idx>
+              <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>
+              <idx><h>private key</h></idx>
+            :
+              <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx>
+            that is, it is the sort of thing,
+            in an asymmetric cryptosystem,
+              <idx><h>asymmetric cryptosystem</h></idx>
+            that must be kept secret.
+          </p>
+        </li>
+        <li>
+          <title>invalidlabel</title>
+          <p>
+            Also, when one exports a key, it is a byte string.
+            This means that if you want to write this to a file,
+            you need to open the file with a command like <program><input>file_handle = open("filename", "wb")</input></program>The <c>"wb"</c> there means that the file is being opened for
+            <term>w</term>riting in <term>b</term>yte mode.
+          </p>
+        </li>
+      </ul>
+    </p>
+    <p>
+      If you can export a key, it stands to reason that you can also import one.
+      In fact, this is quite easy:
+      suppose that private key
+          <idx><h>private key</h></idx>
+          <idx><h>key</h><h>private</h></idx>
+          <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx>
+      byte string were stored in a variable <c>exported_key</c>.
+      Then you could make an identical RSA object by
+    </p>
+<program><input>>>> from Crypto.PublicKey import RSA
+>>> new_key = RSA.importKey(exported_key)</input></program>
+    <p>
+      and that <c>new_key</c> will have all of the properties and uses as the original <c>key</c>, above.
+    </p>
+    <exercise xml:id="ct_saveRSAprivatekey">
+      <statement>
+        <p>
+          Write a Python function <c>gen_save_RSA_private(n, name)</c> which takes as input a key
+              <idx><h>key</h></idx>
+          size
+              <idx><h>key</h><h>size</h></idx>
+           <c>n</c> and a string <c>name</c>.
+          The function should generate an RSA
+              <idx><h>cryptosystem</h><h>RSA</h></idx>
+              <idx><h>RSA cryptosystem</h></idx>
+          key
+              <idx><h>key</h></idx>
+          of size
+              <idx><h>key</h><h>size</h></idx>
+           <c>n</c> and store it in a file with the given <c>name</c>.
+          It should also return that instance.
+        </p>
+        <p>
+          Then write a Python function <c>recall_RSA_private(name)</c> which takes as input a string <c>name</c>.
+          It should open the file with that <c>name</c>,
+          create an instance of the RSA<idx><h>Crypto.PublicKey [Python module]@<c>Crypto.PublicKey</c> [Python module]</h><h>RSA@<c>RSA</c></h></idx>
+              <idx><h>Python</h><h>RSA class in Crypto.PublicKey module@<c>RSA</c> class in <c>Crypto.PublicKey</c> module</h></idx>
+              <idx><h>RSA [Python class in Crypto.PublicKey module]@<c>RSA</c> [Python class in <c>Crypto.PublicKey</c> module]</h></idx>
+          class with the key value stored in that file,
+          and it should return that instance.
+        </p>
+        <p>
+          The ideas is that you should be able to use these functions in situations like:
+        </p>
+<program><input>>>> from Crypto.PublicKey import RSA
+>>> key = gen_save_RSA_private(1024, "AliceRSA")
+>>> # do lots of encryption and decryption with this key
+>>> # ... then take a break and even quit Python and
+>>> # reboot the computer
+>>> # ... but eventually restart the computer and Python
+>>> # and do this:
+>>> from Crypto.PublicKey import RSA
+>>> key = recall_RSA_private("AliceRSA")
+>>> # and then lots more encryption and decryption with
+>>> # the same key [identity] as before</input></program>
+      </statement>
+    </exercise>
+    <p>
+      As we mentioned near the end of <xref ref="sec_UtRSAACiP">&#xa7;</xref>,
+      in an asymmetric cryptosystem,
+          <idx><h>asymmetric cryptosystem</h></idx>
+      first one computes the private key
+          <idx><h>private key</h></idx>
+          <idx><h>key</h><h>private</h></idx>
+          <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx>
+      and then, from the private key,
+      one computes the corresponding public key
+          <idx><h>public key</h></idx>
+          <idx><h>key</h><h>public</h></idx>
+          <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>.
+          <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+      In fact, as was also mentioned,
+      it is important for the security of the asymmetric cryptosystem
+          <idx><h>asymmetric cryptosystem</h></idx>
+      that while computation
+      <me>
+        \mathrm{private\ key}\rightsquigarrow\mathrm{public\ key}
+      </me>
+      can be done in a reasonable amount of time <mdash/> it doesn't have to be fast, though,
+      since it will be done only once,
+      when setting up the cryptosystem <mdash/> the computation backwards
+      <me>
+        \mathrm{private\ key}\leftsquigarrow\mathrm{public\ key}
+      </me>
+      must be entirely impractical no matter how great are the computational resources available to the enemies that it is imagined will try to break this secure communication.
+    </p>
+    <p>
+      In the case of RSA
+          <idx><h>cryptosystem</h><h>RSA</h></idx>,
+          <idx><h>RSA cryptosystem</h></idx>
+      the easy direction of from private
+          <idx><h>private key</h></idx>
+          <idx><h>key</h><h>private</h></idx>
+          <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx>
+      to public key
+          <idx><h>public key</h></idx>
+          <idx><h>key</h><h>public</h></idx>
+          <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+      is just <em>multiplication</em> and the hard,
+      backwards direction is basically just <em>division</em>.
+      As most of us remember from grade school,
+      it is much easier and more direct to multiply two numbers than it is to divide two.
+      For RSA
+          <idx><h>cryptosystem</h><h>RSA</h></idx>,
+          <idx><h>RSA cryptosystem</h></idx>
+      the two numbers one multiplies are
+      <term>prime numbers</term>,
+          <idx><h>prime numbers</h></idx>
+      meaning that they are numbers which have no positive,
+      whole number factors other than one and themselves.
+      Multiplication of primes is still just as easy
+      (and fast)
+      as for any other types of numbers,
+      even if they are hundreds of digits long.
+      However, if you are given a 600 digit number and told that it is the product of two 300 digit primes,
+      then it would take an immense amount of time <mdash/> a sizeable fraction of the age of the universe:
+      <em>really an immense amount of time</em>
+      <mdash/> using the best algorithms and hardware we have today to find those primes.
+    </p>
+    <p>
+      It is, however, not a mathematical theorem
+      (at this time)
+      that there cannot be some great factorization algorithm out there,
+      as yet undiscovered, which would make the step
+      <me>
+        \mathrm{private\ key}\leftsquigarrow\mathrm{public\ key}
+      </me>
+      relatively fast for RSA
+          <idx><h>cryptosystem</h><h>RSA</h></idx>,
+          <idx><h>RSA cryptosystem</h></idx>
+      the most widely used asymmetric cryptosystem
+          <idx><h>asymmetric cryptosystem</h></idx>
+      on the planet right now.
+      That may or may not make you uncomfortable....<fn>
+      And it may or may not make you even more uncomfortable to learn that <term>quantum computer
+          <idx><h>quantum computer</h></idx>
+      s</term> <mdash/> computers which can do a kind of general-purpose computation in a different model of what that means,
+      based on quantum mechanics
+          <idx><h>quantum mechanics</h></idx>
+      <mdash/> <em>do</em> have a fast factorization algorithm.
+      RSA
+          <idx><h>cryptosystem</h><h>RSA</h></idx>
+          <idx><h>RSA cryptosystem</h></idx>
+      may well be broken the minute the first real,
+      full-sized quantum computer
+          <idx><h>quantum computer</h></idx>
+      is turned on!
+      </fn>
+    </p>
+    <question xml:id="az_RSAfactoring">
+      <statement>
+        <p>
+          Does all of this make sense?
+          What was new or interesting, or what was old and uninteresting?
+          Do you understand how RSA
+              <idx><h>cryptosystem</h><h>RSA</h></idx>
+              <idx><h>RSA cryptosystem</h></idx>'s security could rely upon how it is easy to multiply but hard to divide [factor]?
+        </p>
+      </statement>
+    </question>
+    <p>
+      Regardless of these general considerations around the security of RSA
+          <idx><h>cryptosystem</h><h>RSA</h></idx>,
+          <idx><h>RSA cryptosystem</h></idx>
+      since it is a working asymmetric cryptosystem,
+          <idx><h>asymmetric cryptosystem</h></idx>
+      there must be a way to get just that public key
+          <idx><h>public key</h></idx>
+          <idx><h>key</h><h>public</h></idx>
+          <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+      from the private key
+          <idx><h>private key</h></idx>
+          <idx><h>key</h><h>private</h></idx>
+          <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx>
+      in {<term>Python</term>
+          <idx><h>Python</h></idx>
+      }. Here's how (continuing from an example given above):
+    </p>
+    <p>
+      \begin{adjustbox}{center}
+    </p>
+<program><input>>>> from Crypto.PublicKey import RSA
+>>> key = RSA.generate(1024)
+>>> key.exportKey()
+b'-----BEGIN RSA PRIVATE KEY-----\nMIICXQIBAAKBgQDRpxdIHxJTpuM3
+R/mHKurOrAXnJ5a/nlucxvst3lpHVcs9Yv+Q\nTTtOrDVvgs7BBq2pdjODOYxEm
+AX2GGDuJIFMKZ8Se2ZUGWeJZ0sJolUoANQ0ihIj\nD7zvFz40kuWLU7imSMOlQp
+Wk35lyN2BR4I6DvAo6f4JKzEJ1l2wuig+75QIDAQAB\nAoGAQsKHamLijhq1fdQ
+AhGdJMBidJJd5rHj7yTefomKMsuyB9IFCyiuduBakSWcI\n+XRr9mt6Sc4YeXtD
+YrMuooajWQ6Ltg8sGqjpDtrYzPILiVgN8fXz1R2TKAePrZUO\nKazRnkMN6QcgX
+1xilfXFtr3Q2OB67dpnVwK3mtAI3E6tZ4ECQQDZWhogDB3+xkkO\nES0mH0Dtye
+EbLSknAF84/xSylD58vVYvwWGma4dHEmZcjKEobc8dQQrndBm8jVQS\niDblKjh
+hAkEA9u6EZfk+JqeuoUleirRI5X1Kwvy8jo77kEf3noVBE3Eve9eJgcX2\nO+Zr
+AWke3tKqqu6+Tdy9AKkgl1s5EdfiBQJBAK3My7k2l0Gj4sT53SVvtmaumG83\nx
+IFoXbxg1Hcb7X+nkuRq+R+vOiQNxYZZ+YAvln8pBIQhpXbNeB29iE/lW+ECQFWB
+\nxqshIdp02k3TgD97qnp9ZnQa3Jho/se5hA+KiTxYR18VBfLAQEIByjAU3LHAN
+YU3\nYwLHW1NtPXHsDtkU7pkCQQC4N+Q/IHEY/Sc+fvha5x8zdWmGwODheGJ6Q2
+i6GN+I\n9LvYjKW5hZ1GirUBjonzNi1vrQsaaVZatRsLa1iwTRIa\n-----END
+RSA PRIVATE KEY-----'
+>>> public_key = key.publicKey()
+>>> public_key.exportKey()
+b'-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBi
+QKBgQDRpxdIHxJTpuM3R/mHKurOrAXn\nJ5a/nlucxvst3lpHVcs9Yv+QTTtOrD
+Vvgs7BBq2pdjODOYxEmAX2GGDuJIFMKZ8S\ne2ZUGWeJZ0sJolUoANQ0ihIjD7z
+vFz40kuWLU7imSMOlQpWk35lyN2BR4I6DvAo6\nf4JKzEJ1l2wuig+75QIDAQAB
+\n-----END PUBLIC KEY-----'</input></program>
+    <p>
+      \end{adjustbox}
+    </p>
+    <p>
+      If you use this public key
+          <idx><h>public key</h></idx>
+          <idx><h>key</h><h>public</h></idx>
+          <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+      byte string in an <c>RSA.importKey</c> then it will work,
+      but it will build an instance of the RSA<idx><h>Crypto.PublicKey [Python module]@<c>Crypto.PublicKey</c> [Python module]</h><h>RSA@<c>RSA</c></h></idx>
+          <idx><h>Python</h><h>RSA class in Crypto.PublicKey module@<c>RSA</c> class in <c>Crypto.PublicKey</c> module</h></idx>
+          <idx><h>RSA [Python class in Crypto.PublicKey module]@<c>RSA</c> [Python class in <c>Crypto.PublicKey</c> module]</h></idx>
+      class which only has the public key
+          <idx><h>public key</h></idx>
+          <idx><h>key</h><h>public</h></idx>
+          <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+      and so can do encryption but not decryption.
+      This is the kind of RSA<idx><h>Crypto.PublicKey [Python module]@<c>Crypto.PublicKey</c> [Python module]</h><h>RSA@<c>RSA</c></h></idx>
+          <idx><h>Python</h><h>RSA class in Crypto.PublicKey module@<c>RSA</c> class in <c>Crypto.PublicKey</c> module</h></idx>
+          <idx><h>RSA [Python class in Crypto.PublicKey module]@<c>RSA</c> [Python class in <c>Crypto.PublicKey</c> module]</h></idx>
+      key object which most users will be building to send encrypted messages to the owner of the private key
+          <idx><h>private key</h></idx>
+          <idx><h>key</h><h>private</h></idx>
+          <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>,
+          <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx>
+      while the full,
+      original RSA<idx><h>Crypto.PublicKey [Python module]@<c>Crypto.PublicKey</c> [Python module]</h><h>RSA@<c>RSA</c></h></idx>
+          <idx><h>Python</h><h>RSA class in Crypto.PublicKey module@<c>RSA</c> class in <c>Crypto.PublicKey</c> module</h></idx>
+          <idx><h>RSA [Python class in Crypto.PublicKey module]@<c>RSA</c> [Python class in <c>Crypto.PublicKey</c> module]</h></idx>
+      key object with both private
+          <idx><h>private key</h></idx>
+          <idx><h>key</h><h>private</h></idx>
+          <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx>
+      and public key
+          <idx><h>public key</h></idx>
+      s
+          <idx><h>key</h><h>public</h></idx>
+          <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+      should only be known to and used by the person receiving and decrypting those messages.
+    </p>
+    <exercise xml:id="ct_saveRSApublickey">
+      <statement>
+        <p>
+          Do a version of Code <xref ref="ct_saveRSAprivatekey">Task</xref>
+          which also saves the public key
+              <idx><h>public key</h></idx>
+              <idx><h>key</h><h>public</h></idx>
+              <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+              <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+          in a separate file.
+          That is, make a Python function <c>gen_save_RSA_pub_priv(n, name)</c> which takes as input a key
+              <idx><h>key</h></idx>
+          size
+              <idx><h>key</h><h>size</h></idx>
+           <c>n</c> and a string <c>name</c>.
+          The function should generate an RSA
+              <idx><h>cryptosystem</h><h>RSA</h></idx>
+              <idx><h>RSA cryptosystem</h></idx>
+          key
+              <idx><h>key</h></idx>
+              <idx><h>key</h><h>size</h></idx>
+          of size <c>n</c> and store it in a file with name <c>name+".private"</c>.
+          It should also store just the corresponding public key
+              <idx><h>public key</h></idx>
+              <idx><h>key</h><h>public</h></idx>
+              <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+              <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+          in a file with name <c>name+".public"</c>.
+          Finally, it should return the full instance
+          (not just the public version).
+        </p>
+        <p>
+          Then write a Python function <c>recall_RSA_public(name)</c> which takes as input a string <c>name</c>.
+          It should open the file with name <c>name+".public"</c>,
+          create an instance of the RSA<idx><h>Crypto.PublicKey [Python module]@<c>Crypto.PublicKey</c> [Python module]</h><h>RSA@<c>RSA</c></h></idx>
+              <idx><h>Python</h><h>RSA class in Crypto.PublicKey module@<c>RSA</c> class in <c>Crypto.PublicKey</c> module</h></idx>
+              <idx><h>RSA [Python class in Crypto.PublicKey module]@<c>RSA</c> [Python class in <c>Crypto.PublicKey</c> module]</h></idx>
+          class with the key value stored in that file,
+          and it should return that instance.
+        </p>
+        <p>
+          The idea is that you should be able to use these functions in situations like:
+        </p>
+<program><input>>>> # Bob does:
+>>> from Crypto.PublicKey import RSA
+>>> key = gen_save_RSA_pub_priv(1024, "BobRSA")
+>>> # then puts the file "BobRSA.public" on an open
+>>> # website, where Alice could download it
+>>> # ... then, with this file on her machine,
+>>> # Alice can do:
+>>> from Crypto.PublicKey import RSA
+>>> public_key = recall_RSA_public("BobRSA.public")
+>>> # and Alice can encrypt using this new
+>>> # public key and send messages which only Bob
+>>> # will be able to decrypt using his original
+>>> # key which has both public and private keys</input></program>
+      </statement>
+    </exercise>
+    <p>
+      We still haven't used these RSA<idx><h>Crypto.PublicKey [Python module]@<c>Crypto.PublicKey</c> [Python module]</h><h>RSA@<c>RSA</c></h></idx>
+          <idx><h>Python</h><h>RSA class in Crypto.PublicKey module@<c>RSA</c> class in <c>Crypto.PublicKey</c> module</h></idx>
+          <idx><h>RSA [Python class in Crypto.PublicKey module]@<c>RSA</c> [Python class in <c>Crypto.PublicKey</c> module]</h></idx>
+      key objects to encrypt and decrypt messages.
+      Remember, it is an object like the <c>public_key</c> one in the example above which is all that is needed to do encryption
+      (we use the same key as above,
+      rather than generating a new one, just for consistency),
+      which we could create with
+    </p>
+    <p>
+      \begin{adjustbox}{center}
+    </p>
+<program><input>>>> from Crypto.PublicKey import RSA
+>>> public_key = RSA.importKey(b'-----BEGIN PUBLIC KEY-----\nMIGf
+MA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDRpxdIHxJTpuM3R/mHKurOrAXn\nJ5a
+/nlucxvst3lpHVcs9Yv+QTTtOrDVvgs7BBq2pdjODOYxEmAX2GGDuJIFMKZ8S\ne2
+ZUGWeJZ0sJolUoANQ0ihIjD7zvFz40kuWLU7imSMOlQpWk35lyN2BR4I6DvAo6\nf
+4JKzEJ1l2wuig+75QIDAQAB\n-----END PUBLIC KEY-----')</input></program>
+    <p>
+      \end{adjustbox}
+    </p>
+    <p>
+      We can then use the <c>encrypt</c> method of this <c>public_key</c> object to do encryption.
+      But note first that <c>encrypt</c> has a second argument,
+      just for backwards compatibility with earlier versions of this module,
+      which must be some long integer that is actually completely ignored.
+      Notice also that the return value of <c>encrypt</c> is a tuple,
+      the first element of which is the byte string of the ciphertext, so:
+    </p>
+    <p>
+      \begin{adjustbox}{center}
+    </p>
+<program><input>>>> ciphertext = public_key.encrypt(b'This is a test',1)[0]
+>>> print(ciphertext)
+b'\xbfa\xb0\x8b\x08*\xdf\x96gK0B/\xa2\x8e\x1e\x86\xf2]8\xd9\xc
+b\xc2w\xad\x82}\xb5\xf4\x97\xe1g\x91\xc8\x00\x14fr\x15\xc1\x8b
+\xbd\x8di\x1f\xbc\x8f\xfa\x1c\xad\xb8V\xca\xc7\xed\xb3X"\xb
+7ra\xf8h\x01\x94c\xc9\xaf\xf6\xd5\x0f/\x83[\xea\xfd\x85\xdep9\
+xf2\xee\xfc\xec\xd7\xfc\xfd\xe0\xf1\xcc\x12\x8fZ\xad\xf0|n@\xe
+8vD\xb48}a\xd8^\xdb#\xbb\x01\x8e\x8c\x1a;[\x8e\xfd@\xc1\xb8Ohw
+\xc4\x15'</input></program>
+    <p>
+      \end{adjustbox}
+    </p>
+    <p>
+      As we mentioned above,
+      this <c>public_key</c> object cannot do decryption.
+      In fact, if you try it,
+      you will get some error like \begin{adjustbox}{center}
+    </p>
+<program><input>>>> public_key.decrypt(ciphertext)
+Traceback (most recent call last):
+File " &lt;stdin>", line 1, in  &lt;module>
+File "/usr/lib/python3/dist-packages/Crypto/PublicKey/RSA.py
+", line 174, in decrypt
+return pubkey.pubkey.decrypt(self, ciphertext)
+File "/usr/lib/python3/dist-packages/Crypto/PublicKey/pubkey
+.py", line 93, in decrypt
+plaintext=self._decrypt(ciphertext)
+File "/usr/lib/python3/dist-packages/Crypto/PublicKey/RSA.py
+", line 239, in _decrypt
+mp = self.key._decrypt(cp)
+TypeError: Private key not available in this object</input></program>
+    <p>
+      \end{adjustbox}
+    </p>
+    <p>
+      On the other hand,
+      if we still had the <c>key</c> object around,
+      which contained the private key
+          <idx><h>private key</h></idx>
+          <idx><h>key</h><h>private</h></idx>
+          <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx> <mdash/> or if we saved off the exported version of that key into a file and then rebuilt <c>key</c> with <c>RSA.importKey</c> on the byte string in that file <mdash/> then we could do decryption as simply as
+    </p>
+<program><input>>>> key.decrypt(ciphertext)
+b'This is a test'</input></program>
+    <exercise xml:id="ct_howfastRSA">
+      <statement>
+        <p>
+          Do a version of Code <xref ref="ct_howfastAES">Task</xref> for the RSA
+              <idx><h>cryptosystem</h><h>RSA</h></idx>.
+              <idx><h>RSA cryptosystem</h></idx>
+        </p>
+        <p>
+          That is, make a new RSA<idx><h>Crypto.PublicKey [Python module]@<c>Crypto.PublicKey</c> [Python module]</h><h>RSA@<c>RSA</c></h></idx>
+              <idx><h>Python</h><h>RSA class in Crypto.PublicKey module@<c>RSA</c> class in <c>Crypto.PublicKey</c> module</h></idx>
+              <idx><h>RSA [Python class in Crypto.PublicKey module]@<c>RSA</c> [Python class in <c>Crypto.PublicKey</c> module]</h></idx>
+           <c>key</c> object of key
+              <idx><h>key</h></idx>
+          size
+              <idx><h>key</h><h>size</h></idx>
+          1024.
+          Pick a random cleartext of length around 100 bytes.
+          Then encrypt it 100 times with <c>key.encrypt</c> and report on the average time it takes to do the encryption
+          (using the timing method described in Code <xref ref="ct_howfastAES">Task</xref>).
+        </p>
+        <p>
+          Likewise take the ciphertext coming from any of those encryptions with <c>key</c> and do 100 decryptions of that ciphertext,
+          reporting on the average time it takes to do the decryption.
+        </p>
+      </statement>
+    </exercise>
+    <exercise xml:id="ct_diffusionRSA">
+      <statement>
+        <p>
+          Do a version of Code <xref ref="ct_diffusionAES">Task</xref> for RSA
+              <idx><h>cryptosystem</h><h>RSA</h></idx>.
+              <idx><h>RSA cryptosystem</h></idx>
+        </p>
+        <p>
+          That is, make a new RSA<idx><h>Crypto.PublicKey [Python module]@<c>Crypto.PublicKey</c> [Python module]</h><h>RSA@<c>RSA</c></h></idx>
+              <idx><h>Python</h><h>RSA class in Crypto.PublicKey module@<c>RSA</c> class in <c>Crypto.PublicKey</c> module</h></idx>
+              <idx><h>RSA [Python class in Crypto.PublicKey module]@<c>RSA</c> [Python class in <c>Crypto.PublicKey</c> module]</h></idx>
+           <c>key</c> object of key
+              <idx><h>key</h></idx>
+          size
+              <idx><h>key</h><h>size</h></idx>
+          1024.
+          Pick a cleartext you like of length around 80 or 100 bytes.
+          Make two versions of the cleartext which differ by only one bit.
+        </p>
+        <p>
+          Encrypt both versions of the cleartext with <c>key.encrypt</c> and use your program <c>bits_diff_display</c> from Code <xref ref="ct_bit_difference_checker">Task</xref>
+          to see where and how much the two ciphertexts differ.
+        </p>
+        <p>
+          You might also try the above for several different keys,
+          just to make sure that it's not a fluke which is special for the choice of key you happened to make.
+        </p>
+      </statement>
+    </exercise>
+    <question xml:id="az_RSAinPython">
+      <statement>
+        <p>
+          Does all of this make sense?
+          What was new or interesting, or what was old and uninteresting?
+          Do you feel comfortable using {<term>Python</term>
+              <idx><h>Python</h></idx>
+          }'s implementation of the RSA
+              <idx><h>cryptosystem</h><h>RSA</h></idx>
+              <idx><h>RSA cryptosystem</h></idx>
+          cryptosystem?
+        </p>
+      </statement>
+    </question>
+  </subsection>
+  <subsection xml:id="ssec_UtRSAaciP_MSRSAiPuOAEP">
+    <title>More secure RSA\index{cryptosystem!RSA}\index{RSA cryptosystem} in {{\terminology{Python}\index{Python}}} using OAEP\index{Optimal Asymmetric Encryption Padding [OAEP]}\index{OAEP, Optimal Asymmetric Encryption Padding} and PKCS<nbsp/>#1\index{PKCS #1, Public Key Cryptography Standard #1}\index{Public Key Cryptography Standard #1, PKCS #1}</title>
+    <p>
+      Unfortunately, the direct use of RSA
+          <idx><h>cryptosystem</h><h>RSA</h></idx>,
+          <idx><h>RSA cryptosystem</h></idx>
+      as we just did, is not considered secure.
+      This is for several reasons, some to do with the special structure of RSA
+          <idx><h>cryptosystem</h><h>RSA</h></idx>,
+          <idx><h>RSA cryptosystem</h></idx>
+      some simply to do with the fact that the bare RSA
+          <idx><h>cryptosystem</h><h>RSA</h></idx>
+          <idx><h>RSA cryptosystem</h></idx>
+      we used above has no salt
+          <idx><h>cryptographic salt</h></idx>
+          <idx><h>salt</h><h>cryptographic</h></idx>
+      and so always encrypts the same cleartext to the same ciphertext,
+      when using the same key <mdash/> for (some) details, see the section
+      <url href="https://en.wikipedia.org/wiki/RSA_(cryptosystem)#Attacks_against_plain_RSA">Attacks against plain RSA</url>
+      in the
+      <url href="https://wikipedia.org">Wikipedia</url>
+      article
+      <url href="https://en.wikipedia.org/wiki/RSA_(cryptosystem)">RSA (cryptosystem)</url>.
+    </p>
+    <p>
+      The cryptographic community has developed a theoretical structure which protects against these attacks on plain RSA
+          <idx><h>cryptosystem</h><h>RSA</h></idx>
+          <idx><h>RSA cryptosystem</h></idx>
+      called <term>Optimal Asymmetric Encryption Padding [OAEP]</term><idx><h>Optimal Asymmetric Encryption Padding [OAEP]</h></idx>.
+          <idx><h>OAEP, Optimal Asymmetric Encryption Padding</h></idx>
+      OAEP was incorporated into a standard called
+      <term>PKCS #1, Public Key Cryptography Standard #1</term><idx><h>PKCS #1, Public Key Cryptography Standard #1</h></idx>,
+          <idx><h>Public Key Cryptography Standard #1, PKCS #1</h></idx>
+      issued by RSA Laboratories,
+          <idx><h>RSA Laboratories</h></idx>
+      an American IT security firm founded by the very same Rivest,
+          <idx><h>Rivest, Ron</h></idx>
+      Shamir,
+          <idx><h>Shamir, Adi</h></idx>
+      and Adleman
+          <idx><h>Adleman, Leonard</h></idx>
+      who created the RSA cryptosystem
+          <idx><h>cryptosystem</h><h>RSA</h></idx>.
+          <idx><h>RSA cryptosystem</h></idx>
+      It is PKCS<nbsp/>#1<idx><h>PKCS #1, Public Key Cryptography Standard #1</h></idx>
+          <idx><h>Public Key Cryptography Standard #1, PKCS #1</h></idx>
+      that is considered safe to use in practice<fn>
+      at least with large enough key
+          <idx><h>key</h></idx>
+      sizes,
+          <idx><h>key</h><h>size</h></idx>
+      and until someone turns on a fully functional quantum computer
+          <idx><h>quantum computer</h></idx>
+      </fn>.
+    </p>
+    <p>
+      PKCS<nbsp/>#1<idx><h>PKCS #1, Public Key Cryptography Standard #1</h></idx>
+          <idx><h>Public Key Cryptography Standard #1, PKCS #1</h></idx>
+      is implemented in {{<term>Python</term>
+          <idx><h>Python</h></idx>
+      }} with a class <c>PKCS1_OAEP</c><idx><h>PKCS1_OAEP [Python class]@<c>PKCS1_OAEP</c> [Python class]</h></idx>
+          <idx><h>Python</h><h>PKCS1_OAEP class@<c>PKCS1_OAEP</c> class</h></idx>
+      in the <c>Crypto.Cipher</c><idx><h>Crypto [Python module]@<c>Crypto</c> [Python module]</h><h>Crypto.Cipher@<c>Crypto.Cipher</c></h></idx>
+          <idx><h>Python</h><h>Crypto.Cipher module@<c>Crypto.Cipher</c> module</h></idx>
+      module.
+      Since it is essentially just a padding for an asymmetric cryptosystem
+          <idx><h>asymmetric cryptosystem</h></idx>
+      <mdash/> the
+      <q>P</q>
+      in
+      <q>OAEP</q>
+          <idx><h>Optimal Asymmetric Encryption Padding [OAEP]</h></idx>
+          <idx><h>OAEP, Optimal Asymmetric Encryption Padding</h></idx> <mdash/> we make a PKCS #1 cipher object by feeding it an RSA key object: \begin{adjustbox}{center}
+    </p>
+<program><input>>>> # Bob does:
+>>> from Crypto.PublicKey import RSA
+>>> key = gen_save_RSA_pub_priv(1024, "BobRSA")
+>>> # then puts the file "BobRSA.public" on an open website
+>>> # ... then, Alice gets this file on her machine, and does:
+>>> from Crypto.PublicKey import RSA
+>>> public_key = recall_RSA_public("BobRSA.public")
+>>> from Crypto.Cipher import PKCS1_OAEP
+>>> cipher_for_encryption = PKCS1_OAEP.new(public_key)
+>>> # and Alice can encrypt messages, e.g.,
+>>> cleartext = b'This is a test. This is only a test.'
+>>> ciphertext = cipher_for_encryption.encrypt(cleartext)
+>>> print(ciphertext)
+b'\x17\xf4\xaa\xc8\x84\xa9\xe5\x7f8\xa7\x86`\xea\x13\x1c\x1d>d\
+xd5\xaeI\xed\xf8~$Y\xa3\x7f\xb7h\x14W\x1a\x99\\\xdd]P\x08\x0f*\
+xd4z\xc2u-\xd6\xbb\xf3\xe2;\xf6\xdaZ\xc9!0-\xce\xa1S\xb4\xcc
+x08\x0c#\x00v\x87Kn41\x84\xc8\x18\xdf\xc9\xd8\x83?\xb5\xce\xbf\
+x9b&lt;\xadr.6xa\xa8\xad\xca\x0c\x1b\xf4\xc3\x8c\xe0\x05\\U\xc3\x0
+b\xdf\x02\xfdk*l\xa3*\xa5>\x7f\xcd\xfa\xb3\xdb\x91\xfd\xd5\x15\
+x8b'
+>>> # Bob, on his machine, where he the key object which also
+>>> # contains the private key, can do decryption by
+>>> from Crypto.Cipher import PKCS1_OAEP
+>>> cipher_for_decryption = PKCS1_OAEP.new(key)
+>>> cleared_text = cipher_for_decryption.decrypt(ciphertext)
+>>> print(cleared_text)
+b'This is a test. This is only a test.'</input></program>
+    <p>
+      \end{adjustbox}
+    </p>
+    <p>
+      Notice a couple of things about this:
+      <ul>
+        <li>
+          <title>invalidlabel</title>
+          <p>
+            If you, dear reader, type exactly the same commands into your computer,
+            you will still get back the original cleartext when you do the decryption,
+            but the intermediate step of the ciphertext you will get will be different from the one shown above.
+            The reason for this is that OAEP<idx><h>Optimal Asymmetric Encryption Padding [OAEP]</h></idx>
+              <idx><h>OAEP, Optimal Asymmetric Encryption Padding</h></idx>
+            includes some cryptographic salt
+              <idx><h>cryptographic salt</h></idx>,
+              <idx><h>salt</h><h>cryptographic</h></idx>
+            so that every time you do encryption,
+            even of the same cleartext, you get a different ciphertext.
+            (This is <term>a good thing</term>, it increases security.)
+          </p>
+        </li>
+        <li>
+          <title>invalidlabel</title>
+          <p>
+            You cannot encrypt cleartexts which are very large with the approach described above.
+            So in a practical situation,
+            one must either break up a long message into small chunks and encrypt each of them,
+            or else use some other approach which avoids the size limit.
+            The second of these solutions will be described in the very next section, below.
+          </p>
+        </li>
+      </ul>
+    </p>
+    <p>
+      As you can probably guess,
+      it makes sense now to see if this new,
+      more secure version of RSA
+          <idx><h>cryptosystem</h><h>RSA</h></idx>
+          <idx><h>RSA cryptosystem</h></idx>
+      is slow or fast, and if it satisfies Shannon's
+          <idx><h>Shannon, Claude</h></idx>
+      diffusion
+          <idx><h>diffusion</h></idx>
+      condition.
+    </p>
+    <exercise xml:id="ct_howfastRSAOAEP">
+      <statement>
+        <p>
+          Do a version of Code <xref ref="ct_howfastRSA">Task</xref> for the RSA
+              <idx><h>cryptosystem</h><h>RSA</h></idx>
+              <idx><h>RSA cryptosystem</h></idx>
+          in the PKCS #1/OAEP version.
+        </p>
+        <p>
+          That is, make a new RSA<idx><h>Crypto.PublicKey [Python module]@<c>Crypto.PublicKey</c> [Python module]</h><h>RSA@<c>RSA</c></h></idx>
+              <idx><h>Python</h><h>RSA class in Crypto.PublicKey module@<c>RSA</c> class in <c>Crypto.PublicKey</c> module</h></idx>
+              <idx><h>RSA [Python class in Crypto.PublicKey module]@<c>RSA</c> [Python class in <c>Crypto.PublicKey</c> module]</h></idx>
+           <c>key</c> object of key
+              <idx><h>key</h></idx>
+          size
+              <idx><h>key</h><h>size</h></idx>
+          1024.
+          Use it to make a <c>PKCS1_OAEP</c><idx><h>PKCS1_OAEP [Python class]@<c>PKCS1_OAEP</c> [Python class]</h></idx>
+              <idx><h>Python</h><h>PKCS1_OAEP class@<c>PKCS1_OAEP</c> class</h></idx>
+          cipher object.
+          Pick a random cleartext of length around 100 bytes.
+          Then encrypt it 100 times with <c>cipher.encrypt</c> and report on the average time it takes to do the encryption
+          (using the timing method described in Code <xref ref="ct_howfastAES">Task</xref>).
+        </p>
+        <p>
+          Likewise take the ciphertext coming from any of those encryptions and do 100 decryptions of that ciphertext,
+          reporting on the average time it takes to do the decryption.
+        </p>
+      </statement>
+    </exercise>
+    <exercise xml:id="ct_diffusionRSAOAEP">
+      <statement>
+        <p>
+          Do a version of Code <xref ref="ct_diffusionAES">Task</xref> for the RSA
+              <idx><h>cryptosystem</h><h>RSA</h></idx>
+              <idx><h>RSA cryptosystem</h></idx>
+          in the PKCS #1/OAEP version.
+        </p>
+        <p>
+          That is, make a new RSA<idx><h>Crypto.PublicKey [Python module]@<c>Crypto.PublicKey</c> [Python module]</h><h>RSA@<c>RSA</c></h></idx>
+              <idx><h>Python</h><h>RSA class in Crypto.PublicKey module@<c>RSA</c> class in <c>Crypto.PublicKey</c> module</h></idx>
+              <idx><h>RSA [Python class in Crypto.PublicKey module]@<c>RSA</c> [Python class in <c>Crypto.PublicKey</c> module]</h></idx>
+           <c>key</c> object of key
+              <idx><h>key</h></idx>
+          size
+              <idx><h>key</h><h>size</h></idx>
+          1024.
+          Use it to make a <c>PKCS1_OAEP</c><idx><h>PKCS1_OAEP [Python class]@<c>PKCS1_OAEP</c> [Python class]</h></idx>
+              <idx><h>Python</h><h>PKCS1_OAEP class@<c>PKCS1_OAEP</c> class</h></idx>
+          cipher object.
+          Pick a cleartext you like of length around 80 or 100 bytes.
+          Make two versions of the cleartext which differ by only one bit.
+        </p>
+        <p>
+          Encrypt both versions of the cleartext with <c>cipher.encrypt</c> and use your program <c>bits_diff_display</c> from Code <xref ref="ct_bit_difference_checker">Task</xref>
+          to see where and how much the two ciphertexts differ.
+        </p>
+        <p>
+          You might also try the above for several different keys,
+          just to make sure that it's not a fluke which is special for the choice of key you happened to make.
+        </p>
+        <p>
+          You might also try just comparing two encryptions made in exactly the same way,
+          of exactly the same cleartext,
+          with your program <c>bits_diff_display</c> to see that the cryptographic salt which OAEP<idx><h>Optimal Asymmetric Encryption Padding [OAEP]</h></idx>
+              <idx><h>OAEP, Optimal Asymmetric Encryption Padding</h></idx>
+          uses makes for quite different ciphertexts every time you do encryption,
+          even starting from the same cleartext.
+        </p>
+      </statement>
+    </exercise>
+  </subsection>
+  <subsection xml:id="ssec_UtRSAaciP_HtuRSAFandS">
+    <title>How to use RSA\index{cryptosystem!RSA}\index{RSA cryptosystem} in
+    a way that is both fast and secure</title>
+    <p>
+      It should have been clear from Code Tasks above that RSA, while it has the nice features of an asymmetric cryptosystem
+          <idx><h>asymmetric cryptosystem</h></idx>
+      with regards to key distribution
+          <idx><h>key</h><h>distribution</h></idx>
+      and management,
+          <idx><h>key</h><h>management</h></idx>
+      is very slow.
+      Additionally,
+      it has the problem that one cannot encrypt large messages <mdash/> although,
+      presumably,
+      one could solve this problem by one of the block chaining
+          <idx><h>block chaining</h></idx>
+      methods discussed above.
+      But there is another approach which takes advantage of the good features of asymmetric cryptosystem
+          <idx><h>asymmetric cryptosystem</h></idx>
+      s while avoiding the weaknesses.
+    </p>
+    <p>
+      For this, one uses the whole approach described in this chapter of asymmetric encryption,
+          <idx><h>asymmetric encryption</h></idx>
+      including generating a public
+          <idx><h>public key</h></idx>
+          <idx><h>key</h><h>public</h></idx>
+          <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+      and private key
+          <idx><h>private key</h></idx>
+          <idx><h>key</h><h>private</h></idx>
+          <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>,
+          <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx>
+      posting the public key on some public website for anyone to use,
+      <em>etc.</em> But rather than doing the entire communication in RSA
+          <idx><h>cryptosystem</h><h>RSA</h></idx>
+          <idx><h>RSA cryptosystem</h></idx> (or some other asymmetric cryptosystem,
+          <idx><h>asymmetric cryptosystem</h></idx>
+      one uses that slow but secure asymmetric cryptosystem
+          <idx><h>asymmetric cryptosystem</h></idx>
+      to transmit a randomly chosen
+      <q>session key</q>
+          <idx><h>session</h><h>key</h></idx>.
+          <idx><h>key</h><h>session</h></idx>
+      Then the rest of the communication is done by some fast,
+      well-chained,
+          <idx><h>block chaining</h></idx>
+      block cipher
+          <idx><h>block cipher</h></idx>
+      (such as AES<idx><h>Advanced Encryption Standard [AES]</h></idx>).
+          <idx><h>AES (Advanced Encryption Standard)</h></idx>
+    </p>
+    <p>
+      A
+      <q>session</q>
+          <idx><h>session</h></idx>
+      in this context might consist of some agreed-upon number of messages,
+      or all of the messages necessary to complete some protocol
+      (like making a credit card payment on the 'net),
+      or all of the message which are send before some time limit expires.
+      Whatever triggers the end of a session,
+          <idx><h>session</h></idx>
+      when that happens, a new random session key
+          <idx><h>session</h><h>key</h></idx>
+          <idx><h>key</h><h>session</h></idx>
+      must be generated for further secure communications between the same parties.
+    </p>
+    <p>
+      This approach is extremely common on the Internet today.
+      In fact, most of the time customers watch a movie over the Internet,
+      this is the way the video stream is sent to them by the provider.
+      Providers want to send the video data in encrypted form,
+      so that their valuable movies cannot be stolen by someone who is merely observing the packets as they go by on the Internet.
+      Since customers probably have never met the providers in person to agree upon a key for a symmetric cryptosystem,
+          <idx><h>symmetric cryptosystem</h></idx>
+      it would seem that the providers would have to use an asymmetric cryptosystem
+          <idx><h>asymmetric cryptosystem</h></idx>
+      for this encrypted video stream <mdash/> but asymmetric cryptosystem
+          <idx><h>asymmetric cryptosystem</h></idx>
+      s are too slow to run video through without the watching human noticing!
+      On the other hand,
+      block ciphers like AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+          <idx><h>AES (Advanced Encryption Standard)</h></idx> <em>are</em> fast enough.
+      Since the session key
+          <idx><h>session</h><h>key</h></idx>
+          <idx><h>key</h><h>session</h></idx>
+      negotiation<idx><h>session</h><h>key!negotiation</h></idx>
+          <idx><h>key</h><h>session!negotiation</h></idx>
+      at the beginning of the stream happens in a fraction of a second,
+      the approach in this section allows for security,
+      without difficulties of key distribution,
+          <idx><h>key</h><h>distribution</h></idx>
+      but nevertheless using a fast block cipher
+      (for the entire video stream,
+      after the initial session key
+          <idx><h>session</h><h>key</h></idx>
+          <idx><h>key</h><h>session</h></idx>
+      was sent using an asymmetric cryptosystem).
+          <idx><h>asymmetric cryptosystem</h></idx>
+    </p>
+    <p>
+      Below is a graphical depiction of this approach,
+      assuming that Aragorn wants to initiate fast and secure communication with Bilbo,
+      even though they have not met in person to share any key.
+      Note that once the initial session key
+          <idx><h>session</h><h>key</h></idx>
+          <idx><h>key</h><h>session</h></idx>
+      negotiation<idx><h>session</h><h>key!negotiation</h></idx>
+          <idx><h>key</h><h>session!negotiation</h></idx>
+      is finished,
+      there can be any number of messages coming from either side until the session ends <mdash/> the example in this diagram where the messages strictly alternate is only one possibility.
+      In fact, often Aragorn sends her first two messages to Bilbo and \textcircled{{2}}, below) as one,
+      larger, concatenated message <m>c_{k_{AB}} + c_1</m>
+      (using the {{<term>Python</term>
+          <idx><h>Python</h></idx>
+      }} notation
+      <q>+</q>
+      for concatenation of byte strings),
+      since she does not need to wait for any response from Bilbo after \textcircled{{1}} before doing \textcircled{{2}}.
+    </p>
+    <p>
+      <term>Fast and secure,
+      session key-based communication, graphically:</term>
+    </p>
+    <p>
+      \begin{adjustbox}{center}
+    </p>
+    <tabular>
+      <row bottom="minor">
+        <cell></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>Aragorn</cell>
+        <cell>on public network</cell>
+        <cell>Bilbo</cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell>(where Gollum is watching)</cell>
+        <cell></cell>
+      </row>
+      <row bottom="minor">
+        <cell></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell>\textcircled{{1}}</cell>
+        <cell>generate key pair <m>(k^B_e,k^B_d)</m> for</cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>asymmetric cryptosystem <m>\Aa</m>;</cell>
+      </row>
+      <row>
+        <cell>download <m>k^B_e</m></cell>
+        <cell><m>\leftarrowtail\ \ \</m> public encryption key<idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>public key</h></idx>
+          <idx><h>key</h><h>public</h></idx>
+          <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+          <nbsp/><m>k^B_e\ \ \ \leftarrowtail</m></cell>
+        <cell>publish <m>k^B_e</m></cell>
+      </row>
+      <row bottom="minor">
+        <cell></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>choose random session key <m>k_{AB}</m></cell>
+        <cell>\textcircled{{2}}</cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>for symmetric cryptosystem <m>\Ss</m>;</cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>encrypt <m>k_{AB}</m> using <m>\Aa</m> with</cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>public key <m>k^B_e</m>, getting <m>c_{AB}</m>;</cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>transmit <m>c_{AB}</m></cell>
+        <cell><m>\rightarrowtail\ \ \ \Aa</m>-encrypted session key <m>c_{AB}\ \ \ \rightarrowtail</m></cell>
+        <cell>receive <m>c_{AB}</m>;</cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>decrypt <m>c_{AB}</m> using <m>\Aa</m> with</cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>private key <m>k^B_d</m>, getting <m>k_{AB}</m></cell>
+      </row>
+      <row bottom="minor">
+        <cell></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>create cleartext message <m>m_1</m>;</cell>
+        <cell>\textcircled{{3}}</cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>encrypt <m>m_1</m> using <m>\Ss</m> with</cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>session key <m>k_{AB}</m>, getting <m>c_1</m>;</cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>transmit <m>c_1</m></cell>
+        <cell><m>\rightarrowtail\ \ \ \Ss</m>-encrypted ciphertext  <m>c_1\ \ \ \rightarrowtail</m></cell>
+        <cell>receive <m>c_1</m>;</cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>decrypt <m>c_1</m> using <m>\Ss</m> with</cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>session key <m>k_{AB}</m>, getting <m>m_1</m></cell>
+      </row>
+      <row bottom="minor">
+        <cell></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell>\textcircled{{4}}</cell>
+        <cell>create cleartext message <m>m_2</m>;</cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>encrypt <m>m_2</m> using <m>\Ss</m> with</cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>session key <m>k_{AB}</m>, getting <m>c_2</m>;</cell>
+      </row>
+      <row>
+        <cell>receive <m>c_2</m>;</cell>
+        <cell><m>\leftarrowtail\ \ \ \Ss</m>-encrypted ciphertext <m>c_2\ \ \ \leftarrowtail</m></cell>
+        <cell>transmit <m>c_2</m></cell>
+      </row>
+      <row>
+        <cell>decrypt <m>c_2</m> using <m>\Ss</m> with</cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>session key <m>k_{AB}</m>, getting <m>m_2</m></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row bottom="minor">
+        <cell></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>create cleartext message <m>m_3</m>;</cell>
+        <cell>\textcircled{{5}}</cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>encrypt <m>m_3</m> using <m>\Ss</m> with</cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>session key <m>k_{AB}</m>, getting <m>c_3</m>;</cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>transmit <m>c_3</m></cell>
+        <cell><m>\rightarrowtail\ \ \ \Ss</m>-encrypted ciphertext  <m>c_3\ \ \ \rightarrowtail</m></cell>
+        <cell>receive <m>c_3</m>;</cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>decrypt <m>c_3</m> using <m>\Ss</m> with</cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>session key <m>k_{AB}</m>, getting <m>m_3</m></cell>
+      </row>
+      <row bottom="minor">
+        <cell></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>\multicolumn{3}{|l|}{<nbsp/><nbsp/>   \qquad<em>etc....</em>}</cell>
+      </row>
+      <row bottom="minor">
+        <cell></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+    </tabular>
+    <p>
+      \end{adjustbox}
+    </p>
+    <question xml:id="az_sessionbased">
+      <statement>
+        <p>
+          Does all of this make sense?
+          What was new or interesting, or what was old and uninteresting?
+          Do you understand how Alice and Bob would use this session
+              <idx><h>session</h></idx>
+          -based approach?
+        </p>
+      </statement>
+    </question>
+    <p>
+      It is important that the session keys
+          <idx><h>key</h><h>session</h></idx>
+      used in the above scheme come from a good source of randomness.
+      Fortunately, the {{<term>Python</term>
+          <idx><h>Python</h></idx>
+      }} module <c>Crypto</c><idx><h>Crypto [Python module]@<c>Crypto</c> [Python module]</h></idx>
+          <idx><h>Python</h><h>Crypto module@<c>Crypto</c> module</h></idx>
+      has a submodule <c>Crypto.Random</c><idx><h>Crypto [Python module]@<c>Crypto</c> [Python module]</h><h>Crypto.Random@<c>Crypto.Random</c></h></idx>
+          <idx><h>Python</h><h>Crypto.Random module@<c>Crypto.Random</c> module</h></idx>
+      that implements a method <c>get_random_bytes(N)</c><idx><h>Crypto.Random [Python module]@<c>Crypto.Random</c> [Python module]</h><h>get_random_bytes@<c>get_random_bytes</c></h></idx>
+          <idx><h>Python</h><h>get_random_bytes in Crypto.Random module@<c>get_random_bytes</c> method in <c>Crypto.Random</c> module</h></idx>
+          <idx><h>get_random_bytes [Python method in Crypto.Random module]@<c>get_random_bytes</c> [Python method in <c>Crypto.Random</c> module]</h></idx>
+      which generates a good random byte string of length <c>N</c>.
+      This method should be used when creating session keys.
+    </p>
+    <problem xml:id="bt_sessionbasedCS">
+      <statement>
+        <p>
+          Implement the above, session
+              <idx><h>session</h></idx>
+          -based approach to fast and secure communications.
+        </p>
+        <p>
+          Since we're not interested
+          (at the moment)
+          in the technicalities of publishing material
+          (such as public keys)
+          on the web or of sending messages over the Internet,
+          you will have to play the roles of both Aragorn and Bilbo.
+          Instead of posting or transmitting files and data,
+          you will just put these things into files and the next program can read in that file, which,
+          we will imagine, came off the Internet.
+        </p>
+        <p>
+          Hoping to keep matters clear,
+          we'll insist that every {{<term>Python</term>
+              <idx><h>Python</h></idx>
+          }} function which Aragorn should run will have a name that starts with <c>A</c>,
+          while those to be run by Bilbo will have names starting with <c>B</c>.
+          To enforce this idea of separation,
+          the methods beginning with <c>A</c> should only use information that they create themselves or get out of files on the disk
+          (which is playing the role of the public Internet in this scenario)
+          with names ending in <c>.public</c>,
+          and not internal information from the methods beginning with <c>B</c>;
+          and vice-versa for the information used by the <c>B</c> methods.
+        </p>
+        <p>
+          Here are the steps you should write code for,
+          labeled to correspond to the numbers steps in the diagram above,
+          and with the initial of the actor who is to be imagined to be doing the work in that protocol diagram (<em>i.e.</em>,
+          basically the initial tells which column of the diagram is being indicated):
+          <ul>
+            <li>
+              <title>\terminology{B} \textcircled{\tiny{1}}:</title>
+              <p>
+                Write a {{<term>Python</term>
+                  <idx><h>Python</h></idx>
+                }} method <c>B_asym_keygensend(n)</c> which takes as input a key
+                  <idx><h>key</h></idx>
+                size
+                  <idx><h>key</h><h>size</h></idx>
+                 <c>n</c>.
+                The function should
+                <ol>
+                  <li>
+                    <p>
+                      generate an RSA
+                  <idx><h>cryptosystem</h><h>RSA</h></idx>
+                  <idx><h>RSA cryptosystem</h></idx>
+                      key
+                  <idx><h>key</h></idx>
+                      of size
+                  <idx><h>key</h><h>size</h></idx>
+                       <c>n</c>
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      store the full version (public
+                  <idx><h>public key</h></idx>
+                  <idx><h>key</h><h>public</h></idx>
+                  <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+                  <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+                      and private
+                  <idx><h>private key</h></idx>
+                  <idx><h>key</h><h>private</h></idx>
+                  <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>
+                  <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx>) in a file <c>B_asym_key.private</c>, and
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      store just the public
+                  <idx><h>public key</h></idx>
+                  <idx><h>key</h><h>public</h></idx>
+                  <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+                  <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+                      key part in a file <c>B_asym_key.public</c> .
+                    </p>
+                  </li>
+                </ol>
+              </p>
+              Remember, saving data in a file whose name ends in <c>.public</c> is
+              <q>sending</q>
+              the file over the public network,
+              in the metaphor of this problem. [Note,
+              you can accomplish this in very few lines by just calling the function <c>gen_save_RSA_pub_priv(n, name)</c> from Code <xref ref="ct_saveRSApublickey">Task</xref> with the correct arguments!]
+            </li>
+            <li>
+              <title>\terminology{A} \textcircled{\tiny{2}}:</title>
+              <p>
+                Write a {{<term>Python</term>
+                  <idx><h>Python</h></idx>
+                }} method <c>A_session_keygensend()</c> which generates and
+                <q>sends</q>
+                (puts in a file on disk with a name ending in <c>.public</c>) a session key for the AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+                  <idx><h>AES (Advanced Encryption Standard)</h></idx>
+                cryptosystem.
+                This new method should
+                <ol>
+                  <li>
+                    <p>
+                      use <c>get_random_bytes</c><idx><h>Crypto.Random [Python module]@<c>Crypto.Random</c> [Python module]</h><h>get_random_bytes@<c>get_random_bytes</c></h></idx>
+                  <idx><h>Python</h><h>get_random_bytes in Crypto.Random module@<c>get_random_bytes</c> method in <c>Crypto.Random</c> module</h></idx>
+                  <idx><h>get_random_bytes [Python method in Crypto.Random module]@<c>get_random_bytes</c> [Python method in <c>Crypto.Random</c> module]</h></idx>
+                      to generate a high-quality session key
+                  <idx><h>key</h><h>session</h></idx>
+                      <m>k_{AB}</m> of the right size for AES<idx><h>Advanced Encryption Standard [AES]</h></idx>,
+                  <idx><h>AES (Advanced Encryption Standard)</h></idx>
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      encrypt <m>k_{AB}</m> with <c>PKCS1_OAEP</c><idx><h>PKCS1_OAEP [Python class]@<c>PKCS1_OAEP</c> [Python class]</h></idx>
+                      <idx><h>Python</h><h>PKCS1_OAEP class@<c>PKCS1_OAEP</c> class</h></idx>
+                      (you can reuse some lines of code from the Code <xref ref="ct_howfastRSAOAEP">Tasks</xref>
+                      <xref ref="ct_diffusionRSAOAEP">or</xref> for this),
+                      and
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      store the resulting ciphertext in a file <c>encrypted_session_key.public</c>
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      store the unencrypted session key
+                  <idx><h>key</h><h>session</h></idx>
+                      <m>k_{AB}</m> in a file <c>A_session_key</c> for later use by the <c>A</c> methods.
+                    </p>
+                  </li>
+                </ol>
+              </p>
+              Remember, as discussed immediately before Code <xref ref="ct_saveRSAprivatekey">Task</xref>, above,
+              that when you want to write encrypted data to a file,
+              you should open the file the with the command <c>file_handle = open("filename", "wb")</c> and then write the date,
+              as usual,
+              with <c>file_handle.write(data_bytestring)</c>).
+            </li>
+            <li>
+              <title>\terminology{B} \textcircled{\tiny{2}}:</title>
+              <p>
+                Write a {{<term>Python</term>
+                  <idx><h>Python</h></idx>
+                }} method <c>B_session_keyreceive()</c> which reads and decrypts the session key
+                  <idx><h>key</h><h>session</h></idx>
+                which Aragorn just created and
+                <q>sent.</q>
+                For this, it should
+                <ol>
+                  <li>
+                    <p>
+                      open the file <c>encrypted_session_key.public</c> for reading bytes,
+                      and get its contents,
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      read the key in the file <c>B_asym_key.private</c> (use your method <c>recall_RSA_private</c> from Code <xref ref="ct_saveRSAprivatekey">Task</xref> to do this!),
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      use that key
+                  <idx><h>key</h></idx>
+                      object to create a <c>PKCS1_OAEP</c><idx><h>PKCS1_OAEP [Python class]@<c>PKCS1_OAEP</c> [Python class]</h></idx>
+                          <idx><h>Python</h><h>PKCS1_OAEP class@<c>PKCS1_OAEP</c> class</h></idx>
+                      cipher object,
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      decrypt the session key
+                  <idx><h>key</h><h>session</h></idx>
+                      previously read in, and
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      save for later use
+                      (the bytes of)
+                      the decrypted session key
+                  <idx><h>key</h><h>session</h></idx>
+                      in a file <c>B_session_key</c> .
+                    </p>
+                  </li>
+                </ol>
+              </p>
+            </li>
+            <li>
+              <title>\terminology{A} \textcircled{\tiny{3}}:</title>
+              <p>
+                Write a {{<term>Python</term>
+                  <idx><h>Python</h></idx>
+                }} method <c>A_send_encrypted_message(m, n)</c> which takes as input a byte string <c>m</c> (the message),
+                and an int <c>n</c> (the message number).
+                This method should:
+                <ol>
+                  <li>
+                    <p>
+                      open the file <c>A_session_key</c> for reading bytes,
+                      and get its contents,
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      using that key,
+                      create a <c>Crypto.Cipher</c><idx><h>Crypto [Python module]@<c>Crypto</c> [Python module]</h><h>Crypto.Cipher@<c>Crypto.Cipher</c></h></idx>
+                          <idx><h>Python</h><h>Crypto.Cipher module@<c>Crypto.Cipher</c> module</h></idx>
+                      object for AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+                  <idx><h>AES (Advanced Encryption Standard)</h></idx>
+                      in CBC<idx><h>Cipher Block Chaining (CBC) mode block chaining</h></idx>
+                  <idx><h>CBC mode block chaining</h></idx>
+                  <idx><h>block chaining</h><h>Cipher Block Chaining (CBC) mode</h></idx>
+                      mode (as we did in <xref ref="sec_EabaatwAES">&#xa7;</xref>),
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      encrypt the message <c>m</c> using that cipher object,
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      open a file whose name is <c><q>c</q>+str(n)</c> for writing bytes, and
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      write (the bytes of) the encrypted message to that file.
+                    </p>
+                  </li>
+                </ol>
+              </p>
+            </li>
+            <li>
+              <title>\terminology{B} \textcircled{\tiny{3}}:</title>
+              <p>
+                Write a {{<term>Python</term>
+                  <idx><h>Python</h></idx>
+                }} method <c>B_receive_encrypted_message(n)</c> which takes as input an int <c>n</c> (the message number) and returns the decrypted message.
+                This method should:
+                <ol>
+                  <li>
+                    <p>
+                      open the file <c>B_session_key</c> for reading bytes,
+                      and get its contents,
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      using that key,
+                      create a <c>Crypto.Cipher</c><idx><h>Crypto [Python module]@<c>Crypto</c> [Python module]</h><h>Crypto.Cipher@<c>Crypto.Cipher</c></h></idx>
+                          <idx><h>Python</h><h>Crypto.Cipher module@<c>Crypto.Cipher</c> module</h></idx>
+                      object for AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+                  <idx><h>AES (Advanced Encryption Standard)</h></idx>
+                      in CBC<idx><h>Cipher Block Chaining (CBC) mode block chaining</h></idx>
+                  <idx><h>CBC mode block chaining</h></idx>
+                  <idx><h>block chaining</h><h>Cipher Block Chaining (CBC) mode</h></idx>
+                      mode (as we did in <xref ref="sec_EabaatwAES">&#xa7;</xref>),
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      open a file whose name is <c><q>c</q>+str(n)</c> for writing bytes,
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      read (the bytes of) the encrypted message from that file,
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      decrypt the message <c>m</c> using the previously built cipher object, and
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      return the cleartext.
+                    </p>
+                  </li>
+                </ol>
+              </p>
+            </li>
+            <li>
+              <title>\terminology{B} \textcircled{\tiny{4}}:</title>
+              <p>
+                Write a {{<term>Python</term>
+                  <idx><h>Python</h></idx>
+                }} method <c>B_send_encrypted_message(m, n)</c> which takes as input a byte string <c>m</c> (the message),
+                and an int <c>n</c> (the message number).
+                This method should do exactly the same thing as the <c>A_send_encrypted_message(m, n)</c> described above,
+                only switching <c>A</c><m>\leftrightarrow</m><c>B</c> everywhere.
+              </p>
+            </li>
+            <li>
+              <title>\terminology{A} \textcircled{\tiny{4}}:</title>
+              <p>
+                Write a {{<term>Python</term>
+                  <idx><h>Python</h></idx>
+                }} method <c>A_receive_encrypted_message(n)</c> which takes as input an int <c>n</c> (the message number) and returns the decrypted message.
+                This method should do exactly the same thing as the <c>B_receive_encrypted_message(n)</c> described above,
+                only switching <c>A</c><m>\leftrightarrow</m><c>B</c> everywhere.
+              </p>
+            </li>
+          </ul>
+        </p>
+        <p>
+          [Yes, this seems like a long Task,
+          but it extensively reuses or builds on other code you've already written,
+          and has very detailed instructions!]
+        </p>
+      </statement>
+    </problem>
+  </subsection>
+</section>

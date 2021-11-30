@@ -1,0 +1,416 @@
+<section xml:id="sec_Emoltabwabc">
+  <title>Encrypting more or less than a block with a block cipher</title>
+  <introduction>
+    <p>
+          <idx><h>block cipher</h></idx>
+    </p>
+    <p>
+      If Alice and Bob know they will always be exchanging messages which are exactly the number of bytes in the block size
+          <idx><h>block size</h></idx>
+      of the block cipher
+          <idx><h>block cipher</h></idx>
+      they are using, they're in very good shape.
+      What is much more likely, though,
+      is that they will send smaller or (much) larger messages,
+      and we ought to help them do that securely.
+    </p>
+  </introduction>
+  <subsection xml:id="ssec_Emoltabwabc_vsmnsp">
+    <title>Very small messages need some <em>padding</em></title>
+    <p>
+      When a message is smaller than the block size,
+          <idx><h>block size</h></idx>
+      it seems pretty easy simply to add some extra stuff to fill up an entire block:
+      this extra data is called <term>padding</term>.
+          <idx><h>padding</h></idx>
+      The problem is, if the message can could be arbitrary data,
+      then how do we tell what is message and what is padding?
+    </p>
+    <p>
+      A common way to do this,
+      when we know that there will have to be some padding
+      (maybe metadata that goes along with the message,
+      like in the subject line of an email or in the packet metadata for an encrypted packet sent on a packet-switched network),
+      is to assume that there is always at least one byte of padding:
+      the last one.
+      That byte can carry information, though,
+      so it can simply tell the number of bytes of padding or,
+      conversely,
+      the number of actual non-padding bytes in the block.
+    </p>
+    <exercise xml:id="ct_padding_scheme">
+      <statement>
+        <p>
+          Write a Python function <c>pad_string(s, n)</c> which takes as input a string <c>s</c> and block size
+              <idx><h>block size</h></idx>
+           <c>n</c> and returns a string of length <c>n</c>,
+          using padding
+              <idx><h>padding</h></idx>
+          as described above.
+        </p>
+        <p>
+          If <c>len(s)>n-1</c>,
+          you should print an error and return the empty string,
+          since there will be no room for padding.
+          Otherwise, return a string whose first characters are just a copy of <c>s</c> and whose remaining bytes are just some copies of the number <c>len(s)</c>.
+        </p>
+        <p>
+          Also write a function <c>unpad_string(s)</c> which takes as input a string <c>s</c>,
+          assumed to come from the <c>pad_string()</c> function,
+          and returns the original string without padding.
+        </p>
+        <p>
+          For <c>unpad_string</c>,
+          you can assume the block size
+              <idx><h>block size</h></idx>
+          used in the <c>pad_string</c> was simply <c>len(s)</c> and the last byte of <c>s</c> is a number telling how much of <c>s</c> is the original string.
+          Therefore, if <c>ord(s[-1])>len(s)-1</c> then there's some sort of problem and you should print out an error message and return the null string.
+          Otherwise, return the first <c>ord(s[-1])</c> character substring of <c>s</c>.
+        </p>
+        <p>
+          <em>E.g.,</em> <c>pad_string('test',16)</c> should return
+        </p>
+        <p>
+           <c>'test{\textbackslash}x04{\textbackslash}x04{\textbackslash}x04{\textbackslash}x04{\textbackslash}x04{\textbackslash}x04{\textbackslash}x04{\textbackslash}x04{\textbackslash}x04{\textbackslash}x04{\textbackslash}x04{\textbackslash}x04'</c>
+        </p>
+        <p>
+          and <c>unpad_string('fishhead{\textbackslash}x08{\textbackslash}x08{\textbackslash}x08{\textbackslash}x08{\textbackslash}x08{\textbackslash}x08{\textbackslash}x08{\textbackslash}x08')</c> should return
+        </p>
+        <p>
+           <c>'fishhead'</c>.
+        </p>
+      </statement>
+    </exercise>
+    <exercise xml:id="ct_AES_for_short_messages">
+      <statement>
+        <p>
+          Write a Python function <c>smallAESencrypt(k, s)</c> which takes as input an AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+              <idx><h>AES (Advanced Encryption Standard)</h></idx>
+          key <c>k</c> and cleartext string <c>s</c>,
+          where <c>len(s) &lt; 16</c> and returns the AES encryption of the padded
+              <idx><h>padding</h></idx>
+          version of <c>s</c>.
+        </p>
+        <p>
+          If <c>len(s)>15</c> or if <c>k</c> is not a valid AES key,
+          you should print an error and return the empty string.
+        </p>
+        <p>
+          Also write a function <c>smallAESdecrypt(k, t)</c> which takes as input an AES key <c>k</c> and AES ciphertext <c>t</c>,
+          assumed to come from <c>smallAESencrypt(k, s)</c> function,
+          and returns the original cleartext string <c>s</c> (without padding).
+        </p>
+      </statement>
+    </exercise>
+    <question xml:id="az_padding">
+      <statement>
+        <p>
+          Does all of this make sense?
+          What was new or interesting, or what was old and uninteresting?
+          Can you think of a different
+          (or better)
+          padding
+              <idx><h>padding</h></idx>
+          scheme?
+        </p>
+      </statement>
+    </question>
+  </subsection>
+  <subsection xml:id="ssec_Emoltabwabc_lmrbc">
+    <title>Larger messages require <em>block chaining</em></title>
+    <p>
+      What if a cleartext is longer than the block size
+          <idx><h>block size</h></idx>
+      of the block cipher
+          <idx><h>block cipher</h></idx>
+      we are using?
+      The obvious thing would be simply to break the cleartext into some number of full blocks and then one last block which is smaller,
+      and to use regular block encryption on the full blocks and padding-plus-encryption
+          <idx><h>padding</h></idx>
+      on the last, smaller block.
+    </p>
+    <exercise xml:id="ct_naivelargeblockmsgenc">
+      <statement>
+        <p>
+          Implement that scheme for the AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+              <idx><h>AES (Advanced Encryption Standard)</h></idx>
+          block cipher.
+              <idx><h>block cipher</h></idx>
+          That is:
+        </p>
+        <p>
+          Write a Python function <c>naiveAESencrypt(k, s)</c> which takes as input an AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+              <idx><h>AES (Advanced Encryption Standard)</h></idx>
+          key <c>k</c> and cleartext string <c>s</c>.
+          It should then build up a return value as follows:
+          <ol>
+            <li>
+              <p>
+                for each full block of cleartext
+                (there may be none such,
+                if the <c>len(s) &lt; 16</c>),
+                append to the return value the regular AES encryption of that block with key <c>k</c>
+              </p>
+            </li>
+            <li>
+              <p>
+                append to the return value the output of <c>smallAESencrypt(k, small)</c>,
+                where <c>small</c> is the last piece of the cleartext,
+                whose length is less than 16 bytes.
+              </p>
+            </li>
+          </ol>
+        </p>
+        <p>
+          Also write a Python function <c>naiveAESdecrypt(k, t)</c> which takes as input an AES key <c>k</c> and ciphertext string <c>t</c>.
+          It should then build up a return value as follows:
+          <ol>
+            <li>
+              <p>
+                if <c>t</c> has more than 16 bytes,
+                for each block of 16 bytes in <c>t</c> except the last,
+                append the plain AES decryption of that block with key <c>k</c> to the return value
+              </p>
+            </li>
+            <li>
+              <p>
+                when done with that,
+                append <c>smallAESdecrypt(k, last)</c> to the return value,
+                where the variable <c>last</c> contains the last 16 bytes of <c>t</c>
+              </p>
+            </li>
+          </ol>
+        </p>
+      </statement>
+    </exercise>
+    <p>
+      But now we've got to wonder if this naive approach to AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+          <idx><h>AES (Advanced Encryption Standard)</h></idx>
+      on large messages still satisfies Shannon's diffusion
+          <idx><h>diffusion</h></idx>
+      condition.
+    </p>
+    <exercise xml:id="ct_naivelargeAESdiffusion">
+      <statement>
+        <p>
+          Re-do Code <xref ref="ct_diffusionAES">Task</xref>
+          but now using two cleartexts of length 80 bytes which differ by one bit near the middle,
+          and using the <c>naiveAESencrypt</c> function.
+        </p>
+      </statement>
+    </exercise>
+    <p>
+      How are we going to get a block cipher
+          <idx><h>block cipher</h></idx>
+      that satisfies Shannon's
+          <idx><h>Shannon, Claude</h></idx>
+      diffusion
+          <idx><h>diffusion</h></idx>
+      condition?
+      A good block cipher will diffuse nicely ... within a block.
+      But the block size
+          <idx><h>block size</h></idx>
+      is fixed, and we have to somehow spread the diffusion <mdash/> which,
+      remember,
+      basically means that changing on bit in the cleartext changes around half of the bits of the ciphertext <mdash/> around in each block.
+      One way might be just to design a new block cipher for each new cleartext whose block size is larger than the size of the cleartext and which does nice diffusion across that block.
+      But it's so hard to verify that ciphers are really secure,
+      this is completely impractical.
+    </p>
+    <p>
+      Instead, the most common approach is to use a block cipher of some fixed size (like AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+          <idx><h>AES (Advanced Encryption Standard)</h></idx>) and to make the encryption of each block depend also on what happened with previous blocks: this is called <term>block chaining</term>.
+          <idx><h>block chaining</h></idx>
+    </p>
+    <p>
+      There are two things we need to think about for block chaining.
+      <ol>
+        <li>
+          <p>
+            <term>How exactly to chain the blocks:</term>
+            There are various ways to chain the encryption of blocks and achieve diffusion.
+              <idx><h>diffusion</h></idx>
+          Here's one: Suppose we change one bit in a block of cleartext.
+            If we're using a well-designed block cipher,
+              <idx><h>block cipher</h></idx>
+            about half of the bits of the ciphertext will change as well.
+            We can use these different bits to change the bits of the next block of plaintext,
+            by bitwise XOR
+              <idx><h>XOR</h></idx>
+            ing
+              <idx><h>exclusive or</h></idx>
+            (<em>i.e.</em>,
+            bitwise addition mod 2) the ciphertext block with that next block of cleartext.
+            That will propagate the change to half of the bits of the corresponding ciphertext,
+            and repeating for each successive block,
+            we will have spread the changed bits all down the sequences of blocks of the ciphertext coming from the long cleartext.
+          </p>
+        </li>
+        <li>
+          <p>
+            <term>How to start the chaining:</term>
+            The very first block will not have a predecessor block off of which to chain.
+            It turns out that this can cause security issues,
+            so the way to handle this is to make a block's worth of random data,
+            called the <term>initialization vector (IV)</term><idx><h>initialization vector (IV)</h></idx>,
+              <idx><h>IV, initialization vector</h></idx>
+            and to start chaining as if that IV were the ciphertext from the previous block.
+            Alice should then send the random IV that she chose along with the ciphertext so that Bob can decrypt the long message.
+          </p>
+        </li>
+      </ol>
+    </p>
+    <definition xml:id="def_CBCmode">
+      <statement>
+        <p>
+              <idx><h>Cipher Block Chaining (CBC) mode block chaining</h></idx>
+              <idx><h>CBC mode block chaining</h></idx>
+              <idx><h>block chaining</h><h>Cipher Block Chaining (CBC) mode</h></idx>
+          The block chaining approach just described is called <term>Cipher Block Chaining</term> or <term>CBC mode</term> block chaining.
+          Symbolically, it works like this:
+        </p>
+        <figure>
+          <image width="73%" source="CBC_encryption.eps"/>
+        </figure>
+        <p>
+          for encryption and like this:
+        </p>
+        <figure>
+          <image width="73%" source="CBC_decryption.eps"/>
+        </figure>
+        <p>
+          for decryption. (In diagrams like this, the symbol
+          <q><m>{}\oplus{}</m></q>
+              <idx><h>1@<m>{}\oplus{}</m>, bitwise XOR</h></idx>
+          stands for bitwise XOR
+              <idx><h>exclusive or</h></idx>
+              <idx><h>XOR</h></idx> (<term>i.e.</term>.)
+        </p>
+      </statement>
+    </definition>
+    <p>
+      Note that the way we discussed before of doing encryption of long messages with a block cipher,
+      which simply treated each block entirely separately and failed Shannon's
+          <idx><h>Shannon, Claude</h></idx>
+      diffusion
+          <idx><h>diffusion</h></idx>
+      condition is, in the context of block chaining schemes,
+      called <term>Electronic Codebook mode</term><idx><h>Electronic Codebook (ECB) mode block chaining</h></idx>
+          <idx><h>block chaining</h><h>Electronic Code Book (ECB) mode</h></idx>
+      or <term>ECB mode</term>
+          <idx><h>ECB mode block chaining</h></idx>
+      chaining and has the simple diagram:
+    </p>
+    <figure>
+      <image width="73%" source="ECB_encryption.eps"/>
+    </figure>
+    <p>
+      for encryption and
+    </p>
+    <figure>
+      <image width="73%" source="ECB_decryption.eps"/>
+    </figure>
+    <p>
+      for decryption.
+    </p>
+    <p>
+      The way a block chaining
+          <idx><h>block chaining</h></idx>
+      mode is chosen in Python is in the creation of a <c>Crypto.Cipher</c><idx><h>Crypto [Python module]@<c>Crypto</c> [Python module]</h><h>Crypto.Cipher@<c>Crypto.Cipher</c></h></idx>
+          <idx><h>Python</h><h>Crypto.Cipher module@<c>Crypto.Cipher</c> module</h></idx>
+      object.
+      Where, in the past,
+      we have used <c>AES.MODE_ECB</c> for Electronic Code Book<idx><h>Electronic Codebook (ECB) mode block chaining</h></idx>
+          <idx><h>block chaining</h><h>Electronic Code Book (ECB) mode</h></idx>
+          <idx><h>ECB mode block chaining</h></idx>
+      chaining, we can use instead <c>AES.MODE_CBC</c> for cipher block chaining<idx><h>Cipher Block Chaining (CBC) mode block chaining</h></idx>
+          <idx><h>CBC mode block chaining</h></idx>
+          <idx><h>block chaining</h><h>Cipher Block Chaining (CBC) mode</h></idx>
+      as described above.
+      Since that mode requires an initialization vector<idx><h>initialization vector (IV)</h></idx>,
+          <idx><h>IV, initialization vector</h></idx>
+      Alice must specify the 16-byte IV they want to use,
+      as follows:<idx><h>Crypto [Python module]@<c>Crypto</c> [Python module]</h><h>Crypto.Cipher@<c>Crypto.Cipher</c></h></idx>
+      <idx><h>Python</h><h>Crypto.Cipher module@<c>Crypto.Cipher</c> module</h></idx>
+    </p>
+<program><input>from Crypto.Cipher import AES
+key=b'randobytes 4 key'  # not a good choice of key
+iv=b'IV of randobytes'   # terrible choice of IV
+cipher=AES.new(key,AES.MODE_CBC,iv)
+ciphertext=cipher.encrypt(b'some cleartext w/ len two blocks')
+message=iv+ciphertext    # put together IV and ciphertext
+# to be transmitted to Bob</input></program>
+    <p>
+      The original message can then be recovered with<idx><h>Crypto [Python module]@<c>Crypto</c> [Python module]</h><h>Crypto.Cipher@<c>Crypto.Cipher</c></h></idx>
+      <idx><h>Python</h><h>Crypto.Cipher module@<c>Crypto.Cipher</c> module</h></idx>
+    </p>
+<program><input>from Crypto.Cipher import AES
+key=b'randobytes 4 key' # Bob must know the same key
+iv=message[:16]         # Bob grabs the IV out of the message
+ciphertext=message[16:] # the rest of the message is ciphertext
+cipher=AES.new(key,AES.MODE_CBC,iv)
+cleartext=cipher.decrypt(ciphertext)</input></program>
+    <p>
+      Note that the <c>Crypto.Cipher</c><idx><h>Crypto [Python module]@<c>Crypto</c> [Python module]</h><h>Crypto.Cipher@<c>Crypto.Cipher</c></h></idx>
+          <idx><h>Python</h><h>Crypto.Cipher module@<c>Crypto.Cipher</c> module</h></idx>
+      object is <term>stateful</term>
+          <idx><h>stateful</h></idx>
+      in CBC<idx><h>Cipher Block Chaining (CBC) mode block chaining</h></idx>
+          <idx><h>CBC mode block chaining</h></idx>
+          <idx><h>block chaining</h><h>Cipher Block Chaining (CBC) mode</h></idx>
+      mode <mdash/> meaning that it remembers what it has seen before.
+      When it is created,
+      it uses the given IV to start the chaining, but thereafter,
+      every call to <c>encrypt</c> chains off of the previous block.
+      That is, the way of encrypting the two-block cleartext<nbsp/><c>b'some cleartext w/ len two blocks'</c> described above yields exactly the same result as doing instead<idx><h>Crypto [Python module]@<c>Crypto</c> [Python module]</h><h>Crypto.Cipher@<c>Crypto.Cipher</c></h></idx>
+      <idx><h>Python</h><h>Crypto.Cipher module@<c>Crypto.Cipher</c> module</h></idx>
+    </p>
+<program><input>from Crypto.Cipher import AES
+key=b'randobytes 4 key'  # not a good choice of key
+iv=b'IV of randobytes'   # terrible choice of IV
+cipher=AES.new(key,AES.MODE_CBC,iv)
+ciphertext_part1=cipher.encrypt(b'some cleartext w')
+ciphertext_part2=cipher.encrypt(b'/ len two blocks')
+ciphertext_full=ciphertext1+ciphertext2
+message=iv+ciphertext    # put together IV and ciphertext
+# to be transmitted to Bob</input></program>
+    <question xml:id="az_chaining">
+      <statement>
+        <p>
+          Does all of this make sense?
+          What was new or interesting, or what was old and uninteresting?
+          Can you think of a different
+          (or better)
+          approach to block chaining?
+              <idx><h>block chaining</h></idx>
+          Do you see why chaining is good,
+          and why an initialization vector<idx><h>initialization vector (IV)</h></idx>
+              <idx><h>IV, initialization vector</h></idx>
+          is a good idea?
+        </p>
+      </statement>
+    </question>
+    <p>
+      Finally, we can see to what extent block chaining makes a version of AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+          <idx><h>AES (Advanced Encryption Standard)</h></idx>
+      which satisfies Shannon's
+          <idx><h>Shannon, Claude</h></idx>
+      diffusion
+          <idx><h>diffusion</h></idx>
+      condition ... to some extent.
+    </p>
+    <exercise xml:id="ct_sophisticatedlargeAESdiffusion">
+      <statement>
+        <p>
+          Re-do Code <xref ref="ct_naivelargeAESdiffusion">Task</xref>
+          but now using AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+              <idx><h>AES (Advanced Encryption Standard)</h></idx>
+          in CBC<idx><h>Cipher Block Chaining (CBC) mode block chaining</h></idx>
+              <idx><h>CBC mode block chaining</h></idx>
+              <idx><h>block chaining</h><h>Cipher Block Chaining (CBC) mode</h></idx>
+          mode.
+        </p>
+      </statement>
+    </exercise>
+  </subsection>
+</section>

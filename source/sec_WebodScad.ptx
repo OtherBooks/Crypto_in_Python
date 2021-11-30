@@ -1,0 +1,493 @@
+<section xml:id="sec_WebodScad">
+  <title>Why encrypt blocks of data: Shannon's confusion and diffusion</title>
+  <p>
+        <idx><h>Shannon, Claude</h></idx>
+        <idx><h>confusion</h></idx>
+        <idx><h>diffusion</h></idx>
+  </p>
+  <p>
+    Our approach to the cryptanalysis of the Caesar and Vigen&#xe8;re ciphers was based on the frequencies that individual letters appear in the English language and also in a ciphertext we are trying to crack.
+    For some cryptosystems,
+    similar approaches might be used for longer strings of characters:
+  </p>
+  <definition xml:id="def_monograph">
+    <statement>
+      <p>
+            <idx><h>monograph</h></idx>
+            <idx><h>digraph</h></idx>
+            <idx><h>trigraph</h></idx>
+        A single letter (from some alphabet) in a piece of text such as a particular plaintext or ciphertext, or in a large collection of all English texts, is called a <term>monograph</term>.
+      </p>
+      <p>
+        Similarly, a pair of adjacent letters in the same kind of text source is called a <term>digraph</term>,
+        and a sequence of three letters is called a <term>trigraph</term>.
+      </p>
+    </statement>
+  </definition>
+  <p>
+    So one way to describe our attacks on Caesar and Vigen&#xe8;re is to say that they compared the statistics of monographs in
+    (various substrings of)
+    a ciphertext with the same statistics for the English language,
+    which turns out to be a fairly stable distribution of letter (monograph) frequencies.
+  </p>
+  <p>
+    Similarly, the frequencies of digraphs in English are fairly stable <mdash/>
+    <em>e.g.,</em> <em>th</em>
+    is quite common, as is <em>qu</em>,
+    while both <em>tx</em> and <em>ql</em> are very common.
+    Thus the statistics of digraphs (and,
+    eventually, trigraphs) can be useful in attacking some cryptosystems.
+  </p>
+  <problem xml:id="bt_digraph">
+    <statement>
+      <p>
+        Ignoring non-alphabetic characters and the difference between upper and lower case,
+        there are <m>676=26^2</m> possible digraphs in English (26 choices for the first letter of the digraph and 26 choices for the second letter).
+      </p>
+      <p>
+        Write a Python function <c>digraph_freq(f, n)</c> which makes a relative frequency table of the digraphs from the text in the file with name <c>f</c>,
+        printing out the most frequent <c>n</c> digraphs and their relative frequencies.
+        You will want to read in the whole file but, as we have done before,
+        discard all the non-alphabetic characters and make the remaining letters all lower case,
+        before counting the digraphs.
+      </p>
+      <p>
+        Note also that the digraphs can overlap:
+        that is, the string <em>humperdink</em> has these digraphs:
+        <em>hu, um, mp, pe, er, rd, di,
+        in,</em> and <em>nk</em> and not just the non-overlapping ones <em>hu,
+        mp, er, di</em>, and <em>nk</em>.
+      </p>
+      <p>
+        Printing out the entire relative frequency table is easier than just the <c>n</c> most frequent digraphs.
+        To do that, you will want to sort the relative frequency values,
+        and then loop through them in the order of decreasing frequency.
+        For each value of a frequency,
+        you will then want to find all digraphs with that frequency and print it out,
+        increasing a counter as you do.
+        When the counter gets to <c>n</c>,
+        you will stop.
+      </p>
+    </statement>
+  </problem>
+  <p>
+    The reason our attack on Caesar using monographs was successful is that Caesar doesn't hid the statistics of its cleartext letters very well:
+    they're all in the ciphertext,
+    just shifted over in the alphabet.
+    In fact, so long as the way we scramble the letters in a cleartext to get the letters of the corresponding ciphertext is the same for every letter <mdash/> maybe not simply shifting,
+    like \begin{tcolorbox}[colback=yellow!5!white,colframe=yellow!75!black] \begin{tikzcd}[column sep=.65cm] \mathrm{Plaintext:} &amp;
+    a\ar[dr] &amp;
+    b\ar[dr] &amp; c\ar[dr] &amp;
+    d\ar[dr] &amp; \cdots &amp; \cdots\ar[dr] &amp; y\ar[dr] &amp;
+    z\arrow[rounded corners,to head,
+    to path={ -| ([yshift=-2cm,xshift=.5cm]\tikztostart.east) -| ([xshift=-.5cm]\tikztotarget.west)\tikztonodes <mdash/> (\tikztotarget)} ]{dlllllll}
+  </p>
+  <p>
+    \mathrm{Ciphertext:} &amp; A &amp; B &amp; C &amp; D &amp; \cdots &amp; \cdots &amp; Y &amp; Z \end{tikzcd} \end{tcolorbox} but even other schemes like \begin{tcolorbox}[colback=yellow!5!white,colframe=yellow!75!black] \begin{tikzcd}[column sep=.65cm] \mathrm{Plaintext:} &amp;
+    a\arrow[dr] &amp; b\ar[dl] &amp;
+    c\ar[dr, crossing over] &amp;
+    d\ar[dl] &amp; \cdots &amp; \cdots &amp;
+    y\ar[dr, crossing over] &amp; z\ar[dl]
+  </p>
+  <p>
+    \mathrm{Ciphertext:} &amp; A &amp; B &amp; C &amp; D &amp; \cdots &amp; \cdots &amp; Y &amp; Z \end{tikzcd} \end{tcolorbox} which switches the even-numbered letters in the alphabet with the odd-numbered ones <mdash/> the statistics of monographs in our ciphertext will be the same as in the cleartext,
+    only in some different order.
+    There's a name for cryptosystems that do this:
+  </p>
+  <definition xml:id="def_monoalphabeticcryptosystem">
+    <statement>
+      <p>
+            <idx><h>monoalphabetic cryptosystem</h></idx>
+            <idx><h>polyalphabetic cryptosystem</h></idx>
+        A cryptosystem where a single scrambling transformation of letters in the cleartext to the letters in the ciphertext is called a <term>monoalphabetic cryptosystem</term>.
+      </p>
+      <p>
+        A cryptosystem where, instead,
+        the scrambling transformation of letters in the cleartext to the letters in the ciphertext changes from letter to letter of the cleartext <mdash/> so that,
+        for example,
+        sometimes <term>a</term> in the cleartext is encrypted to
+        <term>K</term> in the ciphertext,
+        but other times in the same cleartext,
+        <term>a</term> might be encrypted to
+        <term>B</term> or <term>M</term>
+        or some other letter <mdash/> depending upon perhaps the other letters in the message or the location of the cleartext letter in the entire cleartext,
+        is called a <term>polyalphabetic cryptosystem</term>.
+      </p>
+    </statement>
+  </definition>
+  <question xml:id="az_monopolyalphabetic">
+    <statement>
+      <p>
+        Does all of this make sense?
+        What was new or interesting, or what was old and uninteresting?
+        Do you feel like you understand which cryptosystems are monoalphabetic and which are polyalphabetic <mdash/> if so,
+        which of the ones we've discussed so far are of which type?
+      </p>
+    </statement>
+  </question>
+  <p>
+    So (monograph) frequency analysis will make good progress in cryptanalysis of monoalphabetic cryptosystems,
+    but the relative frequency tables for ciphertexts from polyalphabetic cryptosystems are smeared out by adding together lots of differently scrambled versions of the frequency table and so cryptanalysis this way will be much harder.
+  </p>
+  <p>
+    In the end, what we are seeing is that when the ciphertexts produced by some cryptosystem have statistics that somehow reflect the statistics of the cleartext,
+    then there is a possible avenue of attack.
+    The best thing, then,
+    would be if the cleartexts and ciphertexts seemed to be statistically unrelated to each other
+  </p>
+  <p>
+    The great mathematician,
+    computer scientist, and cryptologist Claude Shannon
+        <idx><h>Shannon, Claude</h></idx>
+    <fn>
+    Shannon was an enormously influential figure in the history of computer science <mdash/> for example,
+    he single-handedly invented the field now known as
+    <em>Information Theory</em>.
+        <idx><h>information theory</h></idx>
+    He was also a very colorful character:
+    see \bhref{https://en.wikipedia.org/wiki/Claude_Shannon}{his Wikipedia page}.
+    </fn> in his highly influential (and,
+    initially classified by the US Government) paper
+    <em>A Mathematical Theory of Cryptography</em>\cite{shannon1945mathcrypto}
+  </p>
+  <definition xml:id="def_diffusion">
+    <statement>
+      <p>
+            <idx><h>diffusion</h></idx>
+        We say that a cryptosystem has the property of <term>diffusion</term> if, for a fixed choice of key, every time any single bit in a cleartext is flipped, half of the bits of the ciphertext should change (in general, statistically), and vice-versa. (Here,
+        <q>statistically</q>
+        means that this doesn't have to be precisely true every time,
+        but when we average over many cleartexts and keys,
+        on average half of the ciphertext bits will change every time we change any single cleartext bit.)
+      </p>
+    </statement>
+  </definition>
+  <p>
+    The point of diffusion
+        <idx><h>diffusion</h></idx>
+    is to minimize the information about the cleartext which is <em>leaked</em>
+        <idx><h>information leakage</h></idx>
+    by he ciphertext.
+    The very fact that there is some communication between Alice and Bob is,
+    of course, leaked.
+    Looking at the flows of messages between individuals in some group <mdash/> who speaks to whom and when or,
+    in other words, the <term>metadata</term>
+        <idx><h>metadata</h></idx>
+    of the communication <mdash/> is called
+    <term>traffic analysis</term>
+        <idx><h>traffic analysis</h></idx>
+    and can be very important.
+    Seeing which individual is the central point through which all messages flow,
+    and related issues from traffic analysis,
+    can give information about who is the leader of the group,
+    <em>etc..</em> As former head of the US National Security Agency<idx><h>National Security Agency, NSA</h></idx>
+        <idx><h>NSA, National Security Agency</h></idx>
+    General Michael Hayden
+        <idx><h>General Michael Hayden</h></idx>
+        <idx><h>Hayden, Michael, General</h></idx>
+    said\cite{cole2014we},
+    <q>We kill people based on metadata,
+        <idx><h>metadata</h></idx>
+    </q>
+    <idx><h>We kill people based on metadata@
+    <q>We kill people based on metadata.</q>
+    </h></idx> referring to US drone strikes
+        <idx><h>drone strikes</h></idx>
+    on individuals though to be terrorist leaders based on traffic analysis.
+  </p>
+  <p>
+    If if we are not trying to understand the organization of some group of communicating individuals on the basis of their pattern of communications,
+    and are just looking at Alice and Bob's exchange of encrypted messages,
+    some things are hard to conceal.
+    For example,
+    it is nearly impossible to send a very large piece of information (cleartext) through an encrypted channel unless the corresponding ciphertext is quite large.
+  </p>
+  <p>
+    Although, to be fair, the opposite,
+    that a large ciphertext means the cleartext had a lot of information in it,
+    is not necessarily true.
+    For example, Alice could pad a short message with a very large amount of random extra data and send to Bob the encrypted version of that long cleartext.
+    That would be a large ciphertext which did not correspond to a large amount of (useful) information in the cleartext.
+  </p>
+  <question xml:id="az_trafficanalysis">
+    <statement>
+      <p>
+        Does all of this make sense?
+        What was new or interesting, or what was old and uninteresting?
+        Do you feel like you understand how an observer could use traffic analysis to guess who was the leader of a group of communicating individuals?
+        Can you think of another situations where something like traffic analysis comes up in regular life <mdash/> maybe when friends or romantic partners suddenly are communicating with different people more or less frequently...?
+      </p>
+    </statement>
+  </question>
+  <p>
+    Since it is very hard to prevent the leakage of at least the fact that communication has occurred,
+    as well as, probably, some idea of how much data has be transmitted,
+    a good cryptosystem will try to prevent as much other leakage as possible: Shannon's
+        <idx><h>Shannon, Claude</h></idx>
+    diffusion
+        <idx><h>diffusion</h></idx>
+    is one way to do that.
+  </p>
+  <exercise xml:id="ct_str_difference_checker">
+    <statement>
+      <p>
+        On our way to seeing if the cryptosystems we've met so far have diffusion:
+            <idx><h>diffusion</h></idx>
+      </p>
+      <p>
+        Write a Python function <c>str_diff_display(s,t)</c> which takes two string <c>s</c> and <c>t</c> and shows how much they differ.
+      </p>
+      <p>
+        Your function should first check if the strings have the same length,
+        printing an error and returning 0 if not.
+      </p>
+      <p>
+        Next, your function should loop through the strings and print a
+        <q>*</q>
+        if they differ at each location and a
+        <q>_</q>
+        if they are the same.
+        (You might want to print these symbols in rows of some determined length,
+        like 30 characters.
+        You can do this by printing with commands like <c>print('*',end='')</c> and <c>print('_',end='')</c> to stay on the same line,
+        and then using <c>print('')</c> to get to the next line.)
+      </p>
+      <p>
+        Your program should then return the number of places where the two strings differ
+        (<em>i.e.</em>, the number of
+        <q>*</q>
+        s printed).
+      </p>
+      <p>
+        For example, running
+      </p>
+      <p>
+         <c>str_diff_display("abc"*30,("abc"*15)+"Abc"+("abc"*13)+"aBc")</c> should produce the output
+      </p>
+      <p>
+         <c>______________________________</c>
+      </p>
+      <p>
+         <c>_______________*______________</c>
+      </p>
+      <p>
+         <c>____________________________*_</c>
+      </p>
+      <p>
+         <c>2</c>
+      </p>
+    </statement>
+  </exercise>
+  <exercise xml:id="ct_bit_difference_checker">
+    <statement>
+      <p>
+        Actually, displaying where two strings have different characters,
+        as <c>str_diff_display</c> does,
+        is a pretty crude approximation of showing where those strings have different <em>bits</em>.
+        So let's improve the string difference display and calculation code to make a bit difference display and calculation program.
+      </p>
+      <p>
+        In principle,
+        the easiest way to do this is to convert a string of characters into a string of characters displaying all of the bits in the first string,
+        and then use the <c>str_diff_display</c> you built before.
+      </p>
+      <p>
+        To get a character into its binary expression,
+        you can convert it first to an <c>int</c> with <c>ord</c>,
+        and then convert that <c>int</c> into a string of binary digits with <c>bin</c>.
+        The problem with <c>bin</c> is that it always puts a <c>0b</c> at the front of its binary strings,
+        and it also drops off leading 0s.
+        (That makes sense:
+        when writing the number 17 in base 10, we don't write it as
+        <q>017,</q>
+        to indicate there are no 100s, 1 ten,
+        and 7 ones ... we just write
+        <q>17;</q>
+        <em>i.e.,</em> we drop leading 0s.
+        The same happens in base two.)
+      </p>
+      <p>
+        Of course, you can skip the first two characters
+        (like that
+        <q><c>0b</c></q>
+        )
+        of a string <c>s</c> with <c>s[2:]</c>,
+        and if you have a string <c>b</c> of 0s and 1s that you want to pad on the left with the right number of 0s to make it eight symbols long
+        (to show all the bits in that byte),
+        you can do <c>('0'*(8-len(b)))+b</c>.
+      </p>
+      <p>
+        Use the above ingredients to make a Python function <c>bits_diff_display(s,t)</c> which takes two string <c>s</c> and <c>t</c> and shows how much their bits differ.
+        Since there will be eight times as may bits to show as there were just for <c>str_diff_display(s,t)</c>,
+        you might want to make your lines a bit longer,
+        and maybe show if the bits are the same with a
+        <q>.</q>
+        and if they differ with an
+        <q>x.</q>
+      </p>
+      <p>
+        For example, running
+      </p>
+      <p>
+         <c>bits_diff_display("abcdef", "CbcdeF")</c> should produce the output
+      </p>
+      <p>
+         <c>..+...+.......................</c>
+      </p>
+      <p>
+         <c>............+.....</c>
+      </p>
+      <p>
+         <c>3</c>
+      </p>
+      <p>
+        (Even though running
+      </p>
+      <p>
+         <c>str_diff_display("abcdef", "CbcdeF")</c> would produce the output
+      </p>
+      <p>
+         <c>*____*</c>
+      </p>
+      <p>
+         <c>2  </c>
+      </p>
+      <p>
+        The difference is because while the strings <c>"abcdef"</c> and <c>"CbcdeF"</c> differ only in two characters,
+        the first and the last,
+        the bits for <c>"a"</c> are <c>01100001</c> though the bits for <c>"C"</c> are <c>01000011</c> <mdash/> so there are <term>two</term>
+        different bits in this <term>one</term>
+        different character <mdash/> and the bits of <c>"f"</c> are <c>01100110</c> though the bits for <c>"F"</c> are <c>01000110</c> <mdash/> so there is only one different bit in this one different character!)
+      </p>
+    </statement>
+  </exercise>
+  <exercise xml:id="ct_diffusionCaesarVigenereOTP">
+    <statement>
+      <p>
+        Which of the cryptosystems that we have studied so far <mdash/> Caesar,
+            <idx><h>Caesar cipher</h></idx>
+        Vigen\<sq>ere,
+            <idx><h>Vigenere cryptosystem</h></idx>
+        and one-time pad
+            <idx><h>one-time pad</h></idx>
+        s <mdash/> satisfies Shannon</sq>s?
+            <idx><h>Shannon, Claude</h></idx>
+        idea of diffusion
+            <idx><h>diffusion</h></idx>
+      </p>
+      <p>
+        Take a fairly long <mdash/> maybe 100 characters or so <mdash/> cleartext from some source,
+        and make two versions of it which differ by only one bit.
+      </p>
+      <p>
+        [Note: think a bit about how to make that one-bit change.
+        Changing one letter may not do it!
+        For example, the letter <term>a</term>
+        is represented in Unicode by the number 97,
+        which is has binary expression <term>01100001</term>.
+        On the other hand, <term>b</term> in Unicode is 98,
+        which is <term>01100010</term> in binary <mdash/> so changing
+        <term>a</term> to <term>b</term>
+        changes <em>two</em> bits!]
+      </p>
+      <p>
+        Once you've got those two strings,
+        make appropriate keys and encrypt both strings,
+        then run your <c>bits_diff_display</c> on the encrypted versions to see where and how much they differ.
+        Try this for each of the cryptosystems we've done in this class.
+      </p>
+      <p>
+        You should now be able to answer the question if those cryptosystems satisfy Shannon's
+            <idx><h>Shannon, Claude</h></idx>
+        diffusion.
+      </p>
+    </statement>
+  </exercise>
+  <p>
+    Another thing Shannon
+        <idx><h>Shannon, Claude</h></idx>
+    worried about was if the ciphertexts leaked some information about the <em>key</em>
+    that was used in their encryption.
+    In particular, he made a definition similar to diffusion,
+    but now looking at keys, as follows:
+  </p>
+  <definition xml:id="def_confusion">
+    <statement>
+      <p>
+            <idx><h>confusion</h></idx>
+        We say that a cryptosystem has the property of <term>confusion</term> if, working with a fixed cleartext, every time any single bit in a key is flipped, half of the bits of the ciphertext should change (in general, statistically), and vice-versa. (Here, <sq>statistically</sq>' means that this doesn't have to be precisely true every time, but when we average over many ciphertexts and keys, on average half of the ciphertext bits will change every time we change any single bit of the key.)
+      </p>
+    </statement>
+  </definition>
+  <exercise xml:id="ct_confusionCaesarVigenereOTP">
+    <statement>
+      <p>
+        Which of the cryptosystems that we have studied so far <mdash/> Caesar,
+            <idx><h>Caesar cipher</h></idx>
+        Vigen\<sq>ere,
+            <idx><h>Vigenere cryptosystem</h></idx>
+        and one-time pad
+            <idx><h>one-time pad</h></idx>
+        s <mdash/> satisfies Shannon</sq>s?
+            <idx><h>Shannon, Claude</h></idx>
+        idea of confusion
+            <idx><h>confusion</h></idx>
+      </p>
+      <p>
+        Repeat the previous Code <xref ref="ct_diffusionCaesarVigenereOTP">Task</xref>
+        with now a fixed cleartext but trying encryptions with only one bit changed in the key,
+        and see how much of the ciphertext changes.
+      </p>
+    </statement>
+  </exercise>
+  <p>
+    The conclusion of this discussion of information leakage is that we should seek cryptosystems that satisfy confusion and diffusion:
+    they must smoosh up and mix up the bits of the cleartext and the key, so that,
+    in general, (nearly) every bit of the ciphertext depends upon (nearly) every bit of both the cleartext and the key.
+    This means that we must process the whole cleartext at once,
+    we cannot handle the bits (characters) of the cleartext one at a time,
+    as the cryptosystems we've seen so far have done.
+  </p>
+  <p>
+    This is not easy to do with a fixed cryptographic algorithm for a general cleartext,
+    so a common approach has been work with chunks of the cleartext at a time,
+    called blocks,
+    where the blocks all have the same.
+    At least on the level of blocks,
+    we can hope that our new cryptographic algorithm will satisfy confusion and diffusion and therefore reduce information leakage.
+  </p>
+  <p>
+    This leads us to:
+  </p>
+  <definition xml:id="def_blockcipher">
+    <statement>
+      <p>
+            <idx><h>block cipher</h></idx>
+            <idx><h>block size</h></idx>
+        We say that a cryptosystem is a <term>block cipher</term> if it only is defined when it's input cleartexts and ciphertexts are of some fixed size, called the <term>block size</term> and if it is deterministic (<term>i.e.,</term> it has not built-in randomness) so it's result depends only upon the input clear- or ciphertext and the key.
+      </p>
+    </statement>
+  </definition>
+  <question xml:id="az_confusiondiffusion">
+    <statement>
+      <p>
+        Does all of this make sense?
+        What was new or interesting, or what was old and uninteresting?
+        Does it make intuitive sense to you that confusion and diffusion would be desirable characteristics for a cryptosystem,
+        and how block cipher
+            <idx><h>block cipher</h></idx>
+        s might relate to that?
+      </p>
+    </statement>
+  </question>
+  <p>
+    We mentioned at the very beginning of this chapter several well-known block cipher
+        <idx><h>block cipher</h></idx>
+    s. Such cryptosystems <mdash/> or at least the ones that have been widely used <mdash/> tend to be based on very primitive but very fast mixing operations on the bits in the messages and the key.
+    One particular strategy is to take pieces of the key and do various operations on it and the message block,
+    to make something called the <em>round function</em>.
+    Then the full encryption algorithm simply applies the round function some number of times,
+    each time with a new piece of key data,
+    again and again to the slowly transforming message block.
+  </p>
+</section>

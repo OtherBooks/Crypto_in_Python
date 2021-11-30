@@ -1,0 +1,379 @@
+<section xml:id="sec_CotCc">
+  <title>Cryptanalysis of the Caesar cipher</title>
+  <introduction>
+    <p>
+      Let's think about cryptanalysis of the Caesar cipher;
+      that is, let's figure out how to get a plaintext back from a Caesar ciphertext when we don't know the key.
+    </p>
+    <p>
+      The first thing we should notice is that,
+      as we saw in <xref ref="ssec_TCcaiv_komm26">&#xa7;</xref>,
+      the key only matters
+      <q>up to mod 26.</q>
+      But every possible whole number <m>k</m> for a key is equal mod 26 to a whole number in the range from <m>0</m> to <m>25</m>:
+      just try running
+    </p>
+<program><input>for i in range(100):
+print(i\%26)</input></program>
+    <p>
+      to get a feel for what's happening.
+    </p>
+    <p>
+      So, effectively,
+      there are only <m>26</m> possible keys for a Caesar cipher!
+      In fact, it would be pretty silly to use the key <m>k=0</m>,
+      since then the ciphertext would be exactly the same as the plaintext
+      (well, without the non-letter characters, and all in upper case).
+      So there are really only <m>25</m> reasonable Caesar cipher keys.
+      It seems like this kind of thing is important enough to have its own name:
+    </p>
+    <definition xml:id="def_keyspace">
+      <statement>
+        <p>
+              <idx><h>keyspace</h></idx>
+          The set of possible keys for some cryptosystem is called the <term>keyspace</term> of the cryptosystem.
+        </p>
+      </statement>
+    </definition>
+    <p>
+      What we have just seen is that the keyspace of the Caesar cipher is just the whole numbers from 1 to 25.
+      In {<term>Python</term>
+          <idx><h>Python</h></idx>
+      }, it is the elements of the list <c>range(1,25)</c>.
+    </p>
+    <p>
+      An enemy of Caesar's who intercepted a ciphertext of his and who wanted to know what it said could assemble a team of <m>25</m> literate people
+      (maybe those were hard to find at the time?)
+      who could count
+      (also hard?)
+      and use them to make a <em>Caesar-cracking computer</em> as follows:
+      <ul>
+        <li>
+          <title>invalidlabel</title>
+          <p>
+            each person would be assigned one of the numbers from 1 to 25
+          </p>
+        </li>
+        <li>
+          <title>invalidlabel</title>
+          <p>
+            each person would write out the Caesar-decryption of the intercepted ciphertext,
+            using their assigned number as key
+          </p>
+        </li>
+        <li>
+          <title>invalidlabel</title>
+          <p>
+            if one of them got something which looked like it was written in good Latin,
+            they would shout
+            <q>Success!</q>
+            and read out their decryption
+          </p>
+        </li>
+      </ul>
+    </p>
+    <p>
+      This would be a pretty fast and economical way to crack the Caesar cryptosystem only
+      <term>because the keyspace is so small</term>.
+      This kind of attack has a name:
+    </p>
+    <definition xml:id="def_bruteforce">
+      <statement>
+        <p>
+          An attempt to cryptanalyze a cryptosystem by trying all of the possible values of some parameter of the system
+          (such as all possible keys or all possible messages)
+          is called a <term>brute-force attack</term>.
+              <idx><h>brute-force attack</h></idx>
+        </p>
+      </statement>
+    </definition>
+    <question xml:id="az_CCCbruteforce">
+      <statement>
+        <p>
+          Does all of this make sense?
+          What was new or interesting, or what was old and uninteresting?
+        </p>
+        <p>
+          Can you think of an example of a
+          <term>brute-force attack</term>
+              <idx><h>brute-force attack</h></idx>
+          used in some information security context that you know about from other classes or other readings or just from your life?
+        </p>
+      </statement>
+    </question>
+    <exercise xml:id="ct_BTCaesar">
+      <statement>
+        <p>
+          Write a Python function <c>CaesarBF(s)</c> implementing a brute-force attack
+              <idx><h>brute-force attack</h></idx>
+          on the Caesar cryptosystem.
+          Given an input ciphertext,
+          it should try all possible keys for decryption and print out the attempted key and the corresponding decryption.
+        </p>
+        <p>
+          <em>E.g.,</em> the output of <c>CaesarBF('DOOWKHDQLPDOVDWWKHCRR')</c> should be
+        </p>
+<program><input>1:   cnnvjgcpkocnucvvjgbqq
+2:   bmmuifbojnbmtbuuifapp
+3:   alltheanimalsatthezoo
+4:   zkksgdzmhlzkrzssgdynn
+5:   yjjrfcylgkyjqyrrfcxmm
+6:   xiiqebxkfjxipxqqebwll
+7:   whhpdawjeiwhowppdavkk
+8:   vggoczvidhvgnvooczujj
+9:   uffnbyuhcgufmunnbytii
+10:   teemaxtgbfteltmmaxshh
+11:   sddlzwsfaesdksllzwrgg
+12:   rcckyvrezdrcjrkkyvqff
+13:   qbbjxuqdycqbiqjjxupee
+14:   paaiwtpcxbpahpiiwtodd
+15:   ozzhvsobwaozgohhvsncc
+16:   nyygurnavznyfnggurmbb
+17:   mxxftqmzuymxemfftqlaa
+18:   lwwesplytxlwdleespkzz
+19:   kvvdrokxswkvckddrojyy
+20:   juucqnjwrvjubjccqnixx
+21:   ittbpmivquitaibbpmhww
+22:   hssaolhupthszhaaolgvv
+23:   grrznkgtosgrygzznkfuu
+24:   fqqymjfsnrfqxfyymjett
+25:   eppxliermqepwexxlidss</input></program>
+      </statement>
+    </exercise>
+    <p>
+      That's all well and good, but we have a huge problem:
+      human intervention is required here,
+      to pick out which possible decryption,
+      in the brute-force attack,
+          <idx><h>brute-force attack</h></idx>
+      is the correct one!
+    </p>
+    <p>
+      For example,
+      suppose bad actors invaded your organization's network and encrypted all of your files with the Caesar cipher,
+      but choosing a different key for each one.
+      Your organization probably has hundreds of thousands of files,
+      and while any individual one could be easily decrypted,
+      it would take an insane number of person-hours to decrypt your whole network ... you might be willing to pay a fairly large ransom to get all of your files back without all that human life invested in brute-force
+          <idx><h>brute-force attack</h></idx>
+      decryption.
+    </p>
+  </introduction>
+  <subsection xml:id="ssec_CotCc_Fa">
+    <title>Frequency analysis</title>
+    <p>
+      Let's think about how to automate the choice of the correct decryption in a brute-force attack
+          <idx><h>brute-force attack</h></idx>
+      on the Caesar cipher.
+    </p>
+    <p>
+      The key idea here is just the observational fact that
+      <em>the relative frequencies of different letters in English are relatively stable across almost all pieces of English text</em>.
+      In particular, in English, the most common letter is usually
+      <q>e,</q>
+      the second most common is usually
+      <q>t,</q>
+      <em>etc.</em>
+    </p>
+    <p>
+      This suggests an approach to detecting automatically which decryption in the brute-force attack
+          <idx><h>brute-force attack</h></idx>
+      is the correct one:
+      declare victory when the brute-force approach has found a possible decryption where the most common letter is
+      <q>e.</q>
+    </p>
+    <exercise xml:id="ct_freq_count">
+      <statement>
+        <p>
+          Write a Python function <c>freq_table(s)</c> which makes the <em>frequency table
+              <idx><h>frequency table</h></idx>
+          </em> for the letters of a string <c>s</c>.
+          That is, first clean up <c>s</c> by removing all non-letters and making all remaining letters be in the lower case.
+          Then <c>freq_table()</c> should returns a list of 26 <c>int</c> s where the value at location <c>i</c> in this list tells how many times the letter <c>chr(i+ord('a'))</c> occurred in the cleaned-up input string.
+        </p>
+        <p>
+          For example, executing
+        </p>
+        <p>
+           <c>freq_table('alltheanimalsinthezoo')</c>
+        </p>
+        <p>
+          should return the list
+        </p>
+        <p>
+           <c>[3,0,0,0,2,0,0,2,2,0,0,3,1,2,2,0,0,0,1,2,0,0,0,0,0,1]</c>.
+        </p>
+      </statement>
+    </exercise>
+    <exercise xml:id="ct_CaesarBF_findE">
+      <statement>
+        <p>
+          Write a Python function <c>CaesarBF_findE(s)</c> uses your previous <c>CaesarBF(s)</c> but only prints out the possible decryption if the letter
+          <q>e</q>
+          is the most frequent in the proposed cleartext.
+          That is, each time your function computes a possible cleartext,
+          you should get the frequency table <c>freqs</c> from that string,
+          using your <c>freq_table()</c> function.
+          Then do the test <c>freqs[4]==max(freqs)</c> to see if the letter at index 4, which is
+          <q>e,</q>
+          has the maximum frequency.
+          Only if the test passes will you print out that possible cleartext.
+        </p>
+      </statement>
+    </exercise>
+    <p>
+      Clearly, this strategy doesn't seem to work too well,
+      because it would find that the string <c>'teemaxtgbfteltmmaxshh'</c> from key <c>10</c> and <c>'eppxliermqepwexxlidss'</c> from key <c>25</c> were both possible decryptions of <c>'DOOWKHDQLPDOVDWWKHCRR'</c>,
+      neither of which is correct!
+    </p>
+    <p>
+      The problem is that the single letter which is most frequent is too coarse a piece of information about a string to be useful to determine whether the string is in good English.
+      However, the entire frequency table does a much better job.
+      Let's implement that in Python now, in several steps.
+    </p>
+    <exercise xml:id="ct_rel_freq_count">
+      <statement>
+        <p>
+          Modify your Python function <c>freq_table(s)</c> to make one called <c>rel_freq_table(s)</c> which computes the
+          <em>relative frequency table<idx><h>relative frequency table</h></idx>
+          </em><idx><h>frequency table,
+          relative</h></idx> for an input string <c>s</c>:
+          a table which computes the fraction of the letters in <c>s</c> which are each particular letter.
+          If the list computed by <c>freq_table()</c> is <c>f</c>,
+          then the relative version will have <c>float</c> s rather than <c>int</c> s, with values that are the values of <c>f</c> divided by <c>sum(f)</c> (or,
+          what should be the same thing,
+          divided by <c>len</c> of the input string).
+        </p>
+        <p>
+          For example,
+          executing <c>rel_freq_table('zbazb')</c> should return the list <c>[0.2,0.4,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,</c> <c> 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.4]</c>.
+        </p>
+      </statement>
+    </exercise>
+    <exercise xml:id="ct_rel_freq_count_English">
+      <statement>
+        <p>
+          Run your function <c>rel_freq_table()</c> on some very long pieces of English text,
+          to get the model relative frequency table of the English language.
+        </p>
+        <p>
+          You might compare the values you get from what Wikipedia says should be the right table of relative frequencies in
+          <url href="https://en.wikipedia.org/wiki/Letter_frequency">the article Letter Frequency</url>.
+          Did you get a similar answer?
+          If not, do you have a guess of why?
+        </p>
+      </statement>
+    </exercise>
+    <exercise xml:id="ct_dist_rel_freq_tables">
+      <statement>
+        <p>
+          You will need, in a moment, a tool which computes the
+          <q>distance</q>
+          between two relative frequency tables.
+          Those tables are lists of numbers of length 26.
+          Well, if you have a list of two numbers,
+          you can think of those numbers as the coordinates in two-dimensional space.
+          If you have a list of three numbers,
+          you can think of them as coordinates in three-dimensional space.
+          So a list of 26 numbers could be thought of as the coordinates in 26-dimensional space.
+          Weird, yes, but go with it....
+        </p>
+        <p>
+          In two- or three-dimensions,
+          the distance between two points is given by the square root of the sum of the squares of the differences between the coordinates.
+          That is, in two dimensions,
+          the distance between two points with coordinates
+          <m>(x_1,y_1)</m> and <m>(x_2,y_2)</m> is,
+          by the Pythagorean Theorem,
+              <idx><h>Pythagorean Theorem</h></idx>
+          given by the formula <m>\sqrt{(x_1-x_2)^2+(y_1-y_2)^2}</m>.
+          The same thing also works in three ... or in 26 dimensions:
+          that's just the Pythagorean Theorem 25 times!
+        </p>
+        <p>
+          So write a Python function which takes as input two lists of numbers of the same length,
+          say they are <c>a</c> and <c>b</c>.
+          It should then take the first element of <c>a</c> minus the first element of <c>b</c> and square that difference.
+          It should add to that square the square of the difference of the second elements,
+          and so on until all the elements are used up.
+          Finally, it should return the square root of that total,
+          which will be the value of <c>freq_table_dist(a,b)</c>.
+        </p>
+      </statement>
+    </exercise>
+    <exercise xml:id="ct_CaesarBF_rel_freqs">
+      <statement>
+        <p>
+          Now implement a Python function <c>CaesarBF_rel_freq(s)</c> tries all possible Caesar decryptions of the input ciphertext string <c>(s)</c>,
+          and picks the one whose relative frequency table is least different from the standard relative frequency table of English which you just found.
+        </p>
+        <p>
+          Here are the steps:
+          do the <c>CaesarBF(s)</c> approach from before,
+          and compute the relative frequency table for each possible decryption.
+          Now compute the
+          <q>frequency table distance,</q>
+          in the sense of the previous coding task,
+          between the relative frequency table for this possible decryption and the standard relative frequency table for English.
+        </p>
+        <p>
+          When you're done,
+          find the smallest distance of all those possible decryptions and announce that one as the best guess of the real decryption of the input ciphertext.
+        </p>
+      </statement>
+    </exercise>
+    <problem xml:id="bt_stresstestCaesarBF_rel_freqs">
+      <statement>
+        <p>
+          Now let's stress-test the brute force
+              <idx><h>brute-force attack</h></idx>
+          Caesar cipher cracker which uses frequency analysis.
+        </p>
+        <p>
+          First, try taking a big piece of text in another language,
+          encrypt it with the Caesar cipher and some random key,
+          and then use your function <c>CaesarBF_rel_freq(s)</c> to try to decrypt it automatically.
+          For example, you might take some of
+          <url href="https://www.gutenberg.org/files/2000/2000-0.txt">the Spanish text of the famous novel Don Quixote</url>
+          or simply cut-and-paste from
+          <url href="https://www.lemonde.fr/">the French newspaper <em>Le Monde</em></url>
+          or
+          <url href="https://www.deutschetageszeitung.de/">the German newspaper
+          <em>Deutsche Tageszeitung</em></url>.
+          <term>Note:</term> for other languages,
+          you may have an issue with the alphabet!
+          Letters with accents may mess up your constructions in Python which assume the alphabet will be sequentially ordered from 0 to 25 when you take each letter <c>c</c> and do <c>ord(c)-ord('a')</c>.
+          Figure out how to handle this situation (probably by turning each special letter like into a letter in the English alphabet
+          (like just make
+          <q>&#xf1;</q>
+          into a plain
+          <q>n</q>).
+        </p>
+        <p>
+          Or you could try decrypting a text which was originally in Latin, like
+          <url href="https://www.gutenberg.org/cache/epub/28233/pg28233.txt">the original Latin text of Isaac Newton's famous
+          <em>Philosophiae Naturalis Principia</em></url>
+          <url href="https://www.gutenberg.org/cache/epub/28233/pg28233.txt"><em>Mathematica</em></url>.
+        </p>
+        <p>
+          Another thing to do would be to try some very unusual text,
+          but in English.
+          For example,
+          a man named Ernest Wright published a book called <em>Gadsby</em>
+          in 1939 which did not have the letter
+          <q>e</q>
+          anywhere in it.
+          Since
+          <q>e</q>
+          is the most common letter in normal English,
+          the relative letter frequencies in this novel must be quite different from those in normal English.
+          Try encrypting and then automatically decrypting some of
+          <url href="https://www.gutenberg.org/cache/epub/47342/pg47342.txt">the text of <em>Gadsby</em></url>
+          (but make sure you go down far enough in that file to get to the text of the novel:
+          the introductory material does have the letter
+          <q>e</q>).
+        </p>
+      </statement>
+    </problem>
+  </subsection>
+</section>

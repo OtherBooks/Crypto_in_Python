@@ -1,0 +1,204 @@
+<section xml:id="sec_Pcop">
+  <title>Preliminary conclusion of preliminaries</title>
+  <p>
+    We have seen that a very old cryptosystem,
+    the Caesar cipher <mdash/> which even has lived into the modern age in the form of ROT13 <mdash/> helps illuminate some basic ideas of the design of cryptosystems and some first steps in attacking them:
+    basics of cryptography and cryptanalysis.
+  </p>
+  <p>
+    The attack on the Caesar cipher which we discussed was based on
+    <em>frequency analysis</em>.
+    There's actually some interesting history here: As was mentioned above,
+    the Caesar cipher was used by Julius and his nephew in the first century BCE. The approach of frequency analysis was first described nearly a thousand years later,
+    in a book <em>Manuscript on Deciphering Cryptographic Messages<idx><h>Manuscript on Deciphering Cryptographic Messages</h></idx>
+    </em> by the Muslim philosopher,
+    mathematician, physician, and general polymath Al-Kindi.
+        <idx><h>Al-Kindi</h></idx>
+    Like the mathematician and astronomer Al-Khwarizmi
+        <idx><h>Al-Khwarizmi</h></idx>
+    (whose name came down to modern times in the word <em>algorithm
+        <idx><h>algorithm</h></idx>
+    </em> and whose book <em>The Compendious Book on Calculation by Completion and Balancing<idx><h>The Compendious Book on Calculation by Completion and Balancing</h></idx>
+    </em> gave us the word <em>algebra
+        <idx><h>algebra</h></idx>
+    </em>, from it's title in Arabic), Al-Kindi worked at one of the greatest centers of scholarship in the world in the 8th century CE, the House of Wisdom
+        <idx><h>House of Wisdom</h></idx>
+    in Bagdad under the Abbasid Caliphate.
+        <idx><h>Abbasid Caliphate</h></idx>
+    Al-Kindi and Al-Khwarizmi seem to have both been involved in bringing an Indian system for writing numbers using positional notation (so: 101 means one 100 plus no tens plus one 1, whereas the Romans would have written that number CI) to the Arab world.
+    This notation later spread to Christian Europe in the early 13<m>{}^{th}</m> century through a book called <em>Liber Abaci
+        <idx><h>Liber Abaci</h></idx>
+    </em> (title in Latin; which would be
+    <em>The Book of Calculation
+        <idx><h>The Book of Calculation</h></idx>
+    </em> in English) written by a man Leonardo of Pisa<idx><h>Leonardo of Pisa (Fibonacci)</h></idx> ... whom we know today as <em>Fibonacci</em>.
+        <idx><h>Fibonacci (Leonardo of Pisa)</h></idx>
+    Some have claimed that Fibonacci's notation helped bring about the Renaissance
+        <idx><h>Renaissance</h></idx>
+    in Europe, since without good numerical notation,
+    it would have been very hard to do double-entry bookkeeping,
+    which was used by great trading houses like the Medici,
+        <idx><h>Medici</h></idx>
+    who then had the funds to support the tremendous flowering of the arts which was the Renaissance....
+  </p>
+  <p>
+    The Vigen&#xe8;re cipher<idx><h>Vigenere cryptosystem</h><h>history</h></idx> was invented in the mid-15<m>{}^{th}</m> century (<em>not</em>
+    by Vigen&#xe8;re!), used for hundreds of years by European governments and even by the Confederacy during the American Civil War,
+    and was described as recently as the early 20<m>{}^{th}</m> century as unbreakable (by none other than Charles Dodgson<idx><h>Charles Dodgson (Lewis Caroll)</h></idx>,
+        <idx><h>Dodgson, Charles (Lewis Caroll)</h></idx>
+    the mathematician known to us today mostly as Lewis Caroll<idx><h>Lewis Caroll (Charles Dodgson)</h></idx>,
+        <idx><h>Caroll, Lewis (Charles Dodgson)</h></idx>
+    the author of <em>Alice in Wonderland
+        <idx><h>Alice in Wonderland</h></idx>
+    </em>!).
+  </p>
+  <question xml:id="az_fibonacci">
+    <statement>
+      <p>
+        Had you heard of any of this history before?
+        Did you know of Al-Kwarizmi and his connection to the words <term>algorithm</term>
+        and <term>algebra</term>?
+        Had you heard of the House of Wisdom in Bagdad?
+        Or what about the theory that the Renaissance was made possible by the invention of double-entry bookkeeping (and therefore,
+        indirectly,
+        by the importation into Christian Europe of Hindu-Arabic numbers which made calculations so much easier than other systems like the Roman numerals)?
+      </p>
+    </statement>
+  </question>
+  <p>
+    An enormously important thing we have learned in this chapter,
+    however, is that:
+  </p>
+  <blockquote>
+    <term>There is a perfectly secure cryptosystem, the one-time pad.</term>
+  </blockquote>
+  <p>
+    The next time you are watching a movie or TV show which has some line like
+    <q>There's no such thing as an unbreakable code,</q>
+    you should therefore laugh derisively.
+  </p>
+  <exercise xml:id="ct_fullOTP">
+    <statement>
+      <p>
+        Before leaving this topic, we should implement a full,
+        one-time pad cryptosystem which will work for any kind of data in any language.
+      </p>
+      <p>
+        The key to doing this is to think of any data, in any language
+        (or not in a language at all),
+        as being simply a string of bits.
+        Bits, of course,
+        are like letters from an alphabet which has only two symbols
+        <term>0</term> and <term>1</term>.
+        We know from <xref ref="ssec_TCcaiv_komm26">&#xa7;</xref> that Caesar <mdash/> and,
+        therefore Vigen&#xe8;re and one-time pads <mdash/> only care about keys up to mod of the size of the alphabet,
+        which is mod 2 for bits.
+        So shifting the
+        <q>letters</q>
+        <term>0</term> and <term>1</term>
+        by a key of <m>0</m> would do
+        <me>
+          {\mathbf0} {\mathbf1}\overset{{}+0}{\mapsto} {\mathbf0} {\mathbf1}
+        </me>
+        and shifting by a key of <m>1</m> would do
+        <me>
+          {\mathbf0} {\mathbf1}\overset{{}+1}{\mapsto} {\mathbf1} {\mathbf0}
+        </me>
+      </p>
+      <p>
+        Therefore, if the cleartext bit is <m>a</m> and the key bit is <m>b</m>,
+        then the encrypted bit is <m>a \wedge b</m>
+        (this is the
+        <q>exclusive or
+            <idx><h>exclusive or</h></idx>
+        </q>, XOR,
+            <idx><h>XOR</h></idx>
+        operation).
+      </p>
+      <p>
+        Write a Python function <c>OTP_gen_keyfile(f, n)</c> which takes a string <c>f</c> and uses it as a filename into which to deposit <c>n</c> random bytes.
+      </p>
+      <p>
+        Write a Python function <c>OTP_fileencrypt(f,k)</c> which a string <c>f</c> and uses it as a name of a file of cleartext data to be encrypted.
+        The encryption should use the one-time pad kept in the file with name <c>k</c> and the output should be put into the file with name <c>f+'.enc'</c>.
+      </p>
+      <p>
+        <em>Some hints:</em>
+        <ul>
+          <li>
+            <title>invalidlabel</title>
+            <p>
+              You can open a file for reading as bytes with the command <c>file_handle = open(filename,'rb')</c>.
+            </p>
+          </li>
+          <li>
+            <title>invalidlabel</title>
+            <p>
+              You can get the entire contents of such a file into a byte string with the command <c>data=file_handle.read()</c>.
+            </p>
+          </li>
+          <li>
+            <title>invalidlabel</title>
+            <p>
+              If <c>a</c> and <c>b</c> are <c>int</c> s, then <c>a \wedge b</c> is the bitwise XOR of <c>a</c> and <c>b</c>.
+            </p>
+          </li>
+          <li>
+            <title>invalidlabel</title>
+            <p>
+              If <c>bs</c> is a byte string,
+              then <c>bs[i]</c>, (where <c>i</c> is in <c>range(len(bs))</c>) is an <c>int</c>.
+            </p>
+          </li>
+          <li>
+            <title>invalidlabel</title>
+            <p>
+              If you open a file with the flag <c>'wb'</c>,
+              then you can write a byte string <c>bs</c> to that file with <c>file_handle.write(bs)</c>.
+            </p>
+          </li>
+        </ul>
+      </p>
+    </statement>
+  </exercise>
+  <p>
+    However, the enormous problem with one-time pads is that:
+  </p>
+  <blockquote>
+    <term>To remain secure, a one-time pad must have as many key digits as there
+    are letters in the plaintext to be encrypted, and reuse of pads completely
+    destroys the security of this cryptosystem.</term>
+  </blockquote>
+  <p>
+    What this means is that the distribution of very large keys is supremely important in the use of this perfectly secure cryptosystem.
+  </p>
+  <p>
+    There's a nice story of how important the management of one-time pads can be from a wonderful book called
+    <em>Between Silk and Cyanide: A Codebreaker's War<idx><h>Between Silk and Cyanide: A Codebreaker's War</h></idx>
+    </em><nbsp/><xref ref="marks1999between"/> on cryptology during
+    (part of)
+    World War II by the author Leo Marks.
+        <idx><h>Leo Marks</h></idx>
+    Marks ran spies into Nazi-occupied Holland during the war,
+    and when he took over,
+    the spies were given cyanide pills to take so that they could commit suicide if ever captured.
+    That way they would not give away the cryptosystems they used to radio back to England all the secrets they uncovered.
+    Instead, under Marks's direction,
+    they were given large one-time pads,
+    written on sheets of silk thin enough to be worn underneath their clothes when they were first sent to Holland.
+    That way, if captured later,
+    they could tell everything they new about the codes they used and without having the specific one-time pad used by other spies or the one they intended to use later,
+    the Nazis could get no information from intercepted ciphertexts.
+    Which all meant that captured spies had no particular reason to commit suicide,
+    and instead could cooperate and perhaps live out the rest of the war in a POW camp,
+    if captured.
+  </p>
+  <p>
+    This story of silk undergarments with cryptosystem keys written on them is the first time we see what will become a recurring theme in this subject:
+    key distribution,
+        <idx><h>key</h><h>distribution</h></idx>
+    management,
+        <idx><h>key</h><h>management</h></idx>
+    and security can often be the most important practical consideration in applied cryptography.
+  </p>
+</section>

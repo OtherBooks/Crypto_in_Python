@@ -1,0 +1,113 @@
+<chapter xmlns:xi="http://www.w3.org/2001/XInclude"  xml:id="chap_asymmetricCSs">
+  <title>Asymmetric [Public-Key] Cryptosystems</title>
+  <introduction>
+    <p>
+      We have seen that there are secure,
+      fast, (relatively) easy-to-use cryptosystems,
+      but which do require a special activity before the regular communication can start:
+      secure, secret key sharing.
+      There are various approaches to getting around the practical difficulty this may present in the real world
+      (such as, noted above,
+      getting your credit card number securely to an online vendor with whom you have not had the opportunity to perform the secret key-sharing ritual),
+      including:
+    </p>
+    <ul>
+      <li>
+        <title>invalidlabel</title>
+        <p>
+          There are protocols which allow two parties to create a shared secret by exchanging messages on a public network: Alice and Bob must merely exchange two messages and they will end up with a common secret value that Eve,
+          even if she saw both of the messages,
+          will not be able to compute.
+          That shared value can then be used,
+          directly or after further processing,
+          as the key for a block cipher for more secure communication.
+          The most famous of these protocols is Diffie-Hellman key exchange,
+            <idx><h>Diffie-Hellman key exchange</h></idx>
+          about which more information can be found, <em>e.g.</em>, here:
+        </p>
+        <ul>
+          <li>
+            <title>invalidlabel</title>
+            <p>
+              <url href="https://en.wikipedia.org/wiki/Diffie-Hellman_key_exchange">The Wikipedia page
+              <q>Diffie-Hellman key exchange</q></url>
+            </p>
+          </li>
+          <li>
+            <title>invalidlabel</title>
+            <p>
+              <url href="https://ieeexplore.ieee.org/document/1006971">a nice survey article</url>
+              <nbsp/><xref ref="hellman2002"/>
+            </p>
+          </li>
+          <li>
+            <title>invalidlabel</title>
+            <p>
+              <url href="https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.37.9720">the original paper about their discovery by Diffie and Hellman</url>
+              <nbsp/><xref ref="diffie1976new"/>
+            </p>
+          </li>
+        </ul>
+        The details of Diffie-Hellman are based on some modest mathematics:
+        it is quite accessible to an advanced undergraduate mathematics major.
+        It's security rests on a hypothesis which is widely believed <mdash/> but not proven!
+        <mdash/> by many mathematicians and computer scientists.
+      </li>
+      <li>
+        <title>invalidlabel</title>
+        <p>
+          Instead of basing a secure way for parties to build a shared secret by communications over a public channel on theoretical hypotheses,
+          there is way to do the same thing using some specialized hardware and a deep understanding of quantum mechanics.
+            <idx><h>quantum mechanics</h></idx>
+        Called <term>quantum key distribution, [QKD]</term><idx><h>quantum key distribution, [QKD]</h></idx>
+            <idx><h>QKD, quantum key distribution</h></idx>
+            <idx><h>key</h><h>distribution!quantum</h></idx>
+          and invented in the 1980s,
+          this approach has been demonstrated first in the laboratory over ever longer distances since then,
+          but is not yet in wide use in practice.
+          For more information:
+          <ul>
+            <li>
+              <title>invalidlabel</title>
+              <p>
+                <url href="https://en.wikipedia.org/wiki/Quantum_key_distribution">The Wikipedia page
+                <q>Quantum key distribution</q></url>
+              </p>
+            </li>
+            <li>
+              <title>invalidlabel</title>
+              <p>
+                a general introductory site:
+                <url href="https://web.archive.org/web/20131225083723/https://uwaterloo.ca/institute-for-quantum-computing/quantum-computing-101">Quantum computing 101</url>
+              </p>
+            </li>
+            <li>
+              <title>invalidlabel</title>
+              <p>
+                <url href="https://arxiv.org/pdf/2003.06557.pdf">the original 1984 research paper on this subject,
+                by Bennett and Brassard</url>
+                <nbsp/><xref ref="bennett2020quantum"/>
+              </p>
+            </li>
+          </ul>
+        </p>
+      </li>
+      <li>
+        <title>invalidlabel</title>
+        <p>
+          Another approach,
+          with wide and interesting application is the subject of most of this chapter:
+          asymmetric cryptosystem
+            <idx><h>asymmetric cryptosystem</h></idx>
+          s.
+            <idx><h>cryptosystem</h><h>asymmetric</h></idx>
+        </p>
+      </li>
+    </ul>
+  </introduction>
+  <xi:include  href="sec_SAaSCB.ptx"/>
+  <xi:include  href="sec_UtRSAACiP.ptx"/>
+  <xi:include  href="sec_DS.ptx"/>
+  <xi:include  href="sec_asymmetricCSs_Km.ptx"/>
+  <xi:include  href="sec_asymmetricCSs_Cctb.ptx"/>
+</chapter>

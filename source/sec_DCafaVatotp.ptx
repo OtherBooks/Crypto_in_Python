@@ -1,0 +1,484 @@
+<section xml:id="sec_DCafaVatotp">
+  <title>Defending Caesar against frequency analysis: Vigen&#xe8;re
+  and the one-time pad</title>
+  <p>
+        <idx><h>pig, yellow</h></idx>
+  </p>
+  <p>
+    Sometimes a very short message is very important:
+    <q>yes</q>
+    or
+    <q>no</q>
+    is a big difference in many situations!
+    But frequency analysis attacks on the Caesar cipher depend upon having a relative frequency table to compare to the relative frequency table of English ... and without a long enough enough ciphertext string,
+    there won't be much of a frequency table at all.
+  </p>
+  <p>
+    There must be some sort of threshold <m>k</m> such that when a ciphertext string has length <m>k</m> or less,
+    the relative frequency table doesn't give enough information to do successful cryptanalysis.
+    There should also be another threshold <m>K</m> such that when a ciphertext string has length of <m>K</m> or more,
+    the cryptanalysis of the Caesar cipher using relative frequency tables usually works.
+  </p>
+  <p>
+    For messages of length between <m>k</m> and <m>K</m>, presumably,
+    sometimes the approach to cryptanalysis based on relative frequency tables is successful,
+    and sometimes not.
+  </p>
+  <problem xml:id="bt_crack_Caesar_diff_sizes">
+    <statement>
+      <p>
+        Let's try to figure out what those thresholds <m>k</m> and <m>K</m> are.
+      </p>
+      <p>
+        Do a big loop as some number <c>l</c> goes from 1 to 150
+        (or so).
+        For each value of <c>l</c>,
+        you are going to figure out how often your relative frequency table-based Caesar cracker <c>CaesarBF_rel_freq</c> is successful on strings of length <c>l</c>.
+      </p>
+      <p>
+        Make a very long string <c>big_string</c> with some text.
+        You probably want to take all of the non-letters out of <c>big_string</c> and make all of the letters lower case.
+      </p>
+      <p>
+        Now make a loop to try decrypting maybe 100 randomly chosen strings from <c>big_string</c>.
+        Each time through the loop,
+        pick a random substring from <c>big_string</c> of length <c>l</c> <mdash/> the way to do this is to do
+      </p>
+      <p>
+         <c>from random import *</c>
+      </p>
+      <p>
+        once near the beginning of your program, then in this loop set
+      </p>
+      <p>
+         <c>rand_start = randint(0,len(big_string)-l)</c>
+      </p>
+      <p>
+        to be the random starting point for the substring, and
+      </p>
+      <p>
+         <c>rand_cleartext = big_string[rand_start:rand_start+l]</c>
+      </p>
+      <p>
+        to be the corresponding substring of length <c>l</c>.
+      </p>
+      <p>
+        Now pick a random Caesar key <c>k=randint(1,26)</c>,
+        encrypt <c>rand_cleartext</c> to <c>rand_ciphertext</c> with that key,
+        and try your relative frequency table-based Caesar cracker on <c>rand_ciphertext</c>.
+        If its proposed decryption equals <c>rand_cleartext</c>,
+        count that as a success.
+        If not, count it as a failure.
+      </p>
+      <p>
+        See how many times out of the 100 (<em>i.e.</em>,
+        the percentage) in this inner loop you got success.
+      </p>
+      <p>
+        Finishing the outer loop,
+        you should now have a list of success percentages for each possible string length from 1 to 150,
+        maybe in a list <c>successes</c>.
+      </p>
+      <p>
+        Plot that list against the numbers from 1 to 150.
+        This can be done by first getting the plotting package with <c>import matplotlib.pyplot as plt</c>,
+        then making the plot with <c>plt.plot(x,successes)</c> where <c>x=[i+1 for i in range(149)]</c>.
+        You will need also to run <c>plt.show()</c> to display the plot.
+      </p>
+    </statement>
+  </problem>
+  <p>
+    The way to prevent relative frequency table-based attacks on the Caesar cipher is to only use it to encrypt short messages
+    (less than that threshold <m>k</m> we just mentioned).
+    This is a problem if it is important to encrypt a longer message.
+  </p>
+  <p>
+    The approach to use with longer messages is simply to change the Caesar cipher key frequently,
+    so that not all that much cleartext is encrypted with each particular key value.
+    For example, to make the string half as long,
+    so that relative frequency table methods are only half as good,
+    we could use two keys <m>a</m> and <m>b</m>,
+    and encrypt the first half of the message with Caesar under the key <m>a</m> and the second half with Caesar under key <m>b</m>.
+  </p>
+  <p>
+    Historically,
+    this approach was implemented in a slightly different way:
+    rather than using <m>a</m> for the first half of the message and <m>b</m> for the second half,
+    people used <m>a</m> for the letters in the first,
+    third, fifth, <em>etc.</em>, positions in the message,
+    and <m>b</m> for the letter in the second, fourth,
+    sixth, <em>etc.</em> positions.
+  </p>
+  <p>
+    To cut the message pieces down even more,
+    one can use even more keys than just two.
+    There is a name for this cryptosystem:
+  </p>
+  <definition xml:id="def_vigenere">
+    <statement>
+      <p>
+            <idx><h>Vigenere cryptosystem</h></idx>
+        Fix <m>\ell</m> numbers <m>k_1,k_2,\dots,k_\ell</m>.
+        The <term>Vigenere cryptosystem</term>
+        does encryption as follows:
+        given a cleartext <m>c</m>,
+        encrypt the first letter of <m>c</m> using the Caesar cipher with key <m>k_1</m>,
+        the second letter of <m>c</m> using Caesar with key <m>k_2</m>,
+        <term>etc.</term> When all of the <m>\ell</m> key values have bee n used,
+        start again with <m>k_1</m> for the next letter, then <m>k_2</m>,
+        <term>etc.</term> Vigen&#xe8;re decryption works in the same way,
+        except Caesar decryption is used at each step.
+      </p>
+    </statement>
+  </definition>
+  <p>
+    For example, the Vigen&#xe8;re encryption of
+    <q>All the animals in the zoo</q>
+    with three keys <m>3, 20, 4</m> is
+    <q>DFPWBIDHMPUPVCRWBICIS,</q>
+    since
+    <ul>
+      <li>
+        <title>invalidlabel</title>
+        <p>
+          3 characters after
+          <q>a</q>
+          in the alphabet is
+          <q>D,</q>
+        </p>
+      </li>
+      <li>
+        <title>invalidlabel</title>
+        <p>
+          20 characters after
+          <q>l</q>
+          in the alphabet,
+          wrapping around to the beginning of the alphabet when falling off the end, is
+          <q>F,</q>
+        </p>
+      </li>
+      <li>
+        <title>invalidlabel</title>
+        <p>
+          4 characters after
+          <q>l</q>
+          is
+          <q>P,</q>
+        </p>
+      </li>
+      <li>
+        <title>invalidlabel</title>
+        <p>
+          3 characters after
+          <q>t</q>
+          is
+          <q>W,</q>
+        </p>
+      </li>
+      <li>
+        <title>invalidlabel</title>
+        <p>
+          20 characters after
+          <q>h</q>
+          in the alphabet,
+          wrapping around to the beginning of the alphabet when falling off the end, is
+          <q>B,</q>
+        </p>
+      </li>
+      <li>
+        <title>invalidlabel</title>
+        <p>
+          <em>etc.</em>
+        </p>
+      </li>
+    </ul>
+  </p>
+  <p>
+    Notice that we have achieved the goal of messing up frequency analysis approaches to breaking our cryptosystem:
+    for example, the repeated letter
+    <q>l</q>
+    in the cleartext word
+    <q>all</q>
+    has been encrypted into the two different letters
+    <q>F</q>
+    and
+    <q>P</q>
+    <mdash/> but the
+    <q>l</q>
+    later in the cleartext, in the word
+    <q>animal,</q>
+    has also been encrypted to
+    <q>P</q>... the frequency tables have been totally scrambled!
+    In fact, we can see that by looking at the relative frequency charts of the cleartext
+  </p>
+  <figure>
+    <image width="73%" source="all_the_animals_freq.eps"/>
+  </figure>
+  <p>
+    and for the ciphertext from Vigen&#xe8;re encryption with keys <m>3, 20, 4</m>
+  </p>
+  <figure>
+    <image width="73%" source="vig_all_the_animals_freq.eps"/>
+  </figure>
+  <p>
+    which looks completely different!
+    Contrast this with the relative frequency chart for a Caesar encryption
+    (with key <m>10</m>)
+    of the same cleartext
+  </p>
+  <figure>
+    <image width="73%" source="caesar10_all_the_animals_freq.eps"/>
+  </figure>
+  <p>
+    which looks like the relative frequency chart of the original cleartext,
+    shifted horizontally.
+  </p>
+  <question xml:id="az_Vigenere">
+    <statement>
+      <p>
+        Does all of this make sense?
+        What was new or interesting, or what was old and uninteresting?
+        Do you feel like you understand the Vigen&#xe8;re cryptosystem?
+      </p>
+    </statement>
+  </question>
+  <question xml:id="az_Vigenerekeys">
+    <statement>
+      <p>
+        To show you understand Vigen&#xe8;re,
+        can you say what the keyspace is for a the Vigen&#xe8;re cryptosystem when it uses <m>\ell</m> key values?
+        And how big is that keyspace? (How big it is will give us some information about how hard it is to do a brute-force attack
+            <idx><h>brute-force attack</h></idx>
+        on this cryptosystem.)
+      </p>
+    </statement>
+  </question>
+  <exercise xml:id="ct_Vigenere">
+    <statement>
+      <p>
+        Write a Python function <c>Vigenere_encrypt(s, k)</c> which takes a cleartext <c>s</c> and list <c>k</c> of key values and does Vigen&#xe8;re encryption.
+      </p>
+      <p>
+        Likewise implement a Python function <c>Vigenere_decrypt(s, k)</c> which does the decryption for ciphertext <c>s</c> and list <c>k</c> of key values.
+      </p>
+    </statement>
+  </exercise>
+  <p>
+    Using the Vigen&#xe8;re cipher with <m>\ell</m> keys basically divides the cleartext into <m>\ell</m> different pieces and uses the Caesar cipher on each of these different pieces,
+    each time with a different key.
+    As long as these pieces are sufficiently long,
+    we can use our automated Caesar cipher cracker based on relative frequency counts on each piece separately,
+    figure out what the separate Caesar keys are,
+    and then do Vigen\<sq>ere decryption with those <m>\ell</m> keys we</sq>ve figured out.
+  </p>
+  <p>
+    Notice that the <m>\ell</m> pieces of the cleartext into which the Vigen&#xe8;re cryptosystem are all the same size,
+    that being <c>len(s)</c><m>{}/\ell</m> if the cleartext is <c>s</c>.
+    Since an attack on the Vigen&#xe8;re cryptosystem is based on relative frequency-based attacks on the Caesar ciphers of those pieces,
+    and such relative frequency-based attacks only work if there is enough data to make a good relative frequency table,
+    if <c>len(s)</c><m>{}/\ell</m> is a small number,
+    then the attack will fail.
+  </p>
+  <p>
+    In particular,
+    if <m>\ell={}</m><c>len(s)</c> then those <m>\ell</m> pieces will have only one character in them and relative frequency-based attacks will fail miserably.
+    In other words,
+    if you use a Vigen&#xe8;re cryptosystem with <m>\ell</m> keys on a cleartext of length <m>\ell</m>,
+    then it is perfectly secure!
+    This is so important that this cryptosystem is worth giving its own name:
+  </p>
+  <definition xml:id="def_onetimepad">
+    <statement>
+      <p>
+            <idx><h>one-time pad</h></idx>
+        A cryptosystem which is Vigen&#xe8;re where there are as many keys as letters in the cleartext is called a <term>one-time pad cryptosystem</term>, and the <term>pad</term> in this cryptosystem is the name used for the collection of all of those Vigen&#xe8;re keys.
+      </p>
+    </statement>
+  </definition>
+  <p>
+    It is a very important thing when using a one-time pad never to reuse the pad <mdash/> that's why it's called a <em>one-time</em>
+    pad <mdash/> because if Eve guesses that the pad has been reused,
+    she can crack all of the messages which were sent with that pad.
+    We will not discuss here how that attack on encryption with a reused one-time pad works,
+    but suffice it to say that the attack is based,
+    again, on frequency analysis.
+  </p>
+  <p>
+    One final note about one-time pads:
+    typically, when using a one-time pad,
+    the keys are picked purely randomly.
+    The advantage of doing that is that there is no way Eve can predict what the keys in the pad might be,
+    even if she knows Alice and Bob very well.
+    With a randomly chosen one-time pad,
+    this cryptosystem is called <em>information theoretically secure<idx><h>information theoretically secure</h></idx>
+    </em>, meaning that is secure no matter how much computation power Eve can throw at the problem.
+  </p>
+  <question xml:id="az_onetimepad">
+    <statement>
+      <p>
+        Does all of this make sense?
+        What was new or interesting, or what was old and uninteresting?
+        Do you feel like you understand how one-time pads work?
+      </p>
+    </statement>
+  </question>
+  <exercise xml:id="ct_OTPkeygen">
+    <statement>
+      <p>
+        Write a Python function <c>OTP_keygen(n)</c> which generates a one-time pad of size <c>n</c>.
+        As we said above,
+        it's best if these pads are as random as possible, so you might want to do
+      </p>
+      <p>
+         <c>from random import *</c>
+      </p>
+      <p>
+        and then use the command <c>randint(a,b)</c> which returns a random integer in the range <c>a</c> to <c>b</c> (including both endpoints,
+        which is unusual in {{<term>Python</term>
+            <idx><h>Python</h></idx>
+        }}!).
+      </p>
+      <p>
+        As an example of using your new <c>OTP_keygen(n)</c>,
+        send your instructor an email with a one-time pad of at least 100 elements.
+      </p>
+    </statement>
+  </exercise>
+  <exercise xml:id="ct_OTPencrypt">
+    <statement>
+      <p>
+        Write a Python function <c>OTP_encrypt(s,k)</c> which takes a cleartext <c>s</c> and one-time pad <c>k</c> and does the encryption.
+      </p>
+      <p>
+        Also write a Python function <c>OTP_decrypt(s,k)</c> which takes a ciphertext <c>s</c> and one-time pad <c>k</c> and does the decryption.
+      </p>
+      <p>
+        As an example of using your new <c>OTP_encrypt(s,k)</c>,
+        send your instructor an email with your first
+        <term>Reading Response</term> from the course,
+        but encrypted using that one-time pad you sent for Coding <xref ref="ct_OTPkeygen">Task</xref>.
+        (If that <term>Reading Response</term>
+        was longer than 100 characters,
+        you will have to truncate it to the first 100 characters so that you have enough one-time pad to do the encryption.)
+      </p>
+    </statement>
+  </exercise>
+  <problem xml:id="bt_OTPkeygen_better_rand">
+    <statement>
+      <p>
+        Since the quality of the randomness in a one-time pad can actually matter if you plan on encrypting very sensitive data,
+        you might consider using a more sophisticated random number generator than the basic <c>randint(a,b)</c> from the <c>random</c> package ... which is fine for many uses,
+        but maybe not good enough if you are trying to keep a large document secret from a powerful adversary.
+      </p>
+      <p>
+        Python has a function <c>urandom</c> in the package <c>os</c> which generates much stronger randomness.
+        Unfortunately, it returns just a string of random bytes,
+        which you need to convert to <c>int</c> s by using in the {{<term>Python</term>
+            <idx><h>Python</h></idx>
+        }} function <c>unpack</c> in the package <c>struct</c>.
+        <url href="https://pynative.com/cryptographically-secure-random-data-in-python/">Here is a web page which shows how to use these two functions</url>.
+      </p>
+      <p>
+        Write a Python function <c>OTP_keygenCS(n)</c> which generates a one-time pad of size <c>n</c> with
+        <em>cryptographically secure randomness</em>.
+      </p>
+    </statement>
+  </problem>
+  <exercise xml:id="ct_OTPkeyfinder">
+    <statement>
+      <p>
+        Write a Python function <c>OTP_key_finder(s, t)</c> which takes a string <c>s</c> consisting only of lower case letters and string <c>t</c> consisting only of upper case letters,
+        where <c>len(s)</c> is the same as <c>len(t)</c> and computes what must have been the one-time pad which was used to get <c>t</c> as the ciphertext from <c>s</c> using the one-time pad cryptosystem.
+      </p>
+      <p>
+        The fact that you can do this means that when Eve sees a ciphertext from a one-time pad cryptosystem,
+        she cannot deduce anything about the original cleartext other than its length.
+        This is why this cryptosystem is information theoretically secure.
+      </p>
+      <p>
+        <em>Hint:</em> If you're looking at a letter <c>x</c> of cleartext and a letter <c>y</c> of ciphertext and wondering which number <c>k</c> in a one-time pad key could have encrypted <c>x</c> to <c>y</c>,
+        you're really asking the question ``what value of <c>k</c> makes
+      </p>
+      <p>
+         <c>chr((ord(x)-ord('a')+k)%26+ord('A'))==y</c>
+      </p>
+      <p>
+        be true?'' Solving this for <c>k</c> would give one answer as
+      </p>
+      <p>
+         <c>k=ord(y)-ord('A')-ord(x)+ord('a')</c>.
+      </p>
+    </statement>
+  </exercise>
+  <problem xml:id="bt_crack_vigenere_example">
+    <statement>
+      <p>
+        Suppose we somehow know that the following string is the Vigen&#xe8;re encryption of some English cleartext with a Vigen&#xe8;re cryptosystem having <m>\ell=2</m> keys:
+      </p>
+      <p>
+         <c></c>WUZHEGJUFPRQJFFXEWIBDHEOVQUPVBFXIHRUJLYDMHTRDHKRSXIBTDVV
+      </p>
+      <p>
+        RUERKWFSIDZVVKZPKKVHMLCWYDKPVQURCLMHJDWWVUKKVPKKVJFRULJR
+      </p>
+      <p>
+        WWZQKHIUWGNLKKKKVLIEFQVVJRCHKLKEVZZWYFRHJDIWYHERSOVEIXKX
+      </p>
+      <p>
+        JKRWYWFOUBFXTDVVRUNDJDDEZWZRLVZIZWNHIHJRZWNDJDXUZHMRLVWD
+      </p>
+      <p>
+        LOKDEGXUZHMRLVCBYDKKTDVVRURQJZVUVGZWYHIHLQUHIOVDMHFISULW
+      </p>
+      <p>
+        LVRQUWYHIHJWWRIEIXKXJLJDEKFQFURECHDDEVFDIHKKVBROCDCOYRER
+      </p>
+      <p>
+        IDSOVPVQTRDHZWFVGHRNZQTDVVRUJILQVUROYHNDJPPIILVQUIRLKKWX
+      </p>
+      <p>
+        CDEGAXJWKRDHSXKEIXKXJVRBJKVZRVRPSLKLFXJDEGSULWLVZVRQYRER
+      </p>
+      <p>
+        IDSOVPRQYHYDKKSUFXXKKPRQPFRSKLMHJKFPVWFUFPVZYRJHIDEVFPJG
+      </p>
+      <p>
+        ZGKKVJVQVUROTRWIVUJIZOCGZGKKZVZQTDVVRUJHVPRPSLKLFXJZYHEW
+      </p>
+      <p>
+        YDKWYHGRFUYDMHTUZHUFRHJDIKRWYZVSKDDEZWZREVYRLOUEVPRGVRWV
+      </p>
+      <p>
+        KHIQVUJWLIWBVWSULWLVJDPVYHNDJDDEZWZRLVRQUEIXKXJLJDEKFQFU
+      </p>
+      <p>
+        RECHDDEBFXROCGZGJHVWYDKREWYHCXGHIFROZWYUZFVSIHJHEWVGYLDD
+      </p>
+      <p>
+        BLEJCBTUFZEZYLTKYHULUWYUZFVUVILVVZRVKKZVRPSLKLFQPHKEIXKX
+      </p>
+      <p>
+        JVRBJKVZRVRPSLKLFXJDEGJXIHYHZVRQYRERIDSOVPRQZVGHRNERKWFG
+      </p>
+      <p>
+        ZVGUFYVZYDKEIXKXJVGRBHSXKKVUVLRPKRJSVDBZYDKLURBQFZPRLDCO
+      </p>
+      <p>
+        ULUOFYVKZPFQTHERKZZWYRLWTDLVVZYDKFRXJHNLKKYRCGJBFXKKVQKR
+      </p>
+      <p>
+        DRLUEIFUYLDRAXUJDHEWKKFXRUKICHUWFEIXKLJKSHRVKVRQUPVQYDMH
+      </p>
+      <p>
+        CRJWKKVLIUVDJREEVDIZZWYPVPPKVDIWZVZQKKVFFIWLEWYHIHNLKKTD
+      </p>
+      <p>
+        VVRURQULDXJWGDLVVWZOCLKFFPVERFBWFPV}
+      </p>
+      <p>
+        Can you figure out what the two Vigen&#xe8;re keys must have been,
+        and what the original cleartext was?
+      </p>
+    </statement>
+  </problem>
+</section>

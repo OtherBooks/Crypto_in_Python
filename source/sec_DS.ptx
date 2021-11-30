@@ -1,0 +1,890 @@
+<section xml:id="sec_DS">
+  <title>Digital Signatures</title>
+  <introduction>
+    <p>
+          <idx><h>digital signature</h></idx>
+          <idx><h>signature</h><h>digital</h></idx>
+      The discovery of asymmetric cryptosystem
+          <idx><h>asymmetric cryptosystem</h></idx>
+      s <mdash/> or,
+      as they are more often called in non-technical contexts like this paragraph,
+      public-key cryptosystem
+          <idx><h>public-key cryptosystem</h></idx>
+      s <mdash/> has changed the face of the Internet by allowing secure communications between entities who have never met in real space to share a secret key.
+          <idx><h>key</h></idx>
+      Without this innovation,
+      commerce over the Internet would be infinitely more difficult,
+      for example.
+      But beyond this straightforward application of public-key crypto
+          <idx><h>public-key cryptosystem</h></idx>
+      to securing communication against eavesdroppers,
+      other powerful applications have also been discovered.
+      A very nice one,
+      which has many uses in the networked world, is the idea of
+    </p>
+    <definition xml:id="def_digitalsignature">
+      <statement>
+        <p>
+          A <term>digital signature</term>
+              <idx><h>digital signature</h></idx>
+              <idx><h>signature</h><h>digital</h></idx>
+          is a chunk <m>\mathbb S</m> of data which accompanies a message <m>m</m>.
+          There is also an algorithm called
+          <term>verifying the signature</term><idx><h>signature</h><h>digital!verification</h></idx>
+              <idx><h>verification algorithm [for a digital signature]</h></idx>
+          which can be run with inputs <m>\mathbb S</m>, <m>m</m>,
+          and some other public data which,
+          if it returns <sc>accept</sc>,
+          proves that the signature could only have been produced by someone who possesses a certain piece of secret data.
+        </p>
+      </statement>
+    </definition>
+    <p>
+      If we make some assumptions about behavior in the real world <mdash/> which might or might not be justified!
+      <mdash/> then these digital signature
+          <idx><h>digital signature</h></idx>
+      s
+          <idx><h>signature</h><h>digital</h></idx>
+      would have many extremely valuable applications.
+      The assumptions we would need include:
+      <ul>
+        <li>
+          <title>invalidlabel</title>
+          <p>
+            There is some reliable association between the public information used to verify<idx><h>signature</h><h>digital!verification</h></idx>
+              <idx><h>verification algorithm [for a digital signature]</h></idx>
+            a signature and the real-world person who claims they created the signature.
+            For example,
+            perhaps in order to have the public information listed on a well-known,
+            trusted site next to a human name,
+            that human must go to some government office,
+            show an ID, and register their public data.
+          </p>
+        </li>
+        <li>
+          <title>invalidlabel</title>
+          <p>
+            The humans can be trusted to keep the secret data needed to generate those signatures reliably secure.
+            For example,
+            the don't keep the data on a machine which can ever be hacked,
+            and they don't forget to erase it before they throw out an old hard drive,
+            <em>etc.</em>
+          </p>
+        </li>
+      </ul>
+    </p>
+    <p>
+      Now for some details.
+    </p>
+  </introduction>
+  <subsection xml:id="ssec_DS_Ndsw">
+    <title>Naive digital signatures</title>
+    <p>
+          <idx><h>digital signature</h></idx>
+          <idx><h>signature</h><h>digital</h></idx>
+    </p>
+    <p>
+      It has been important since the beginning of our study of cryptology that encryption
+          <idx><h>encryption</h></idx>
+      and decryption
+          <idx><h>decryption</h></idx>
+      are <em>opposites:</em> what we would call
+      <q>inverse functions
+          <idx><h>inverse functions</h></idx>
+      </q>
+      in mathematics<fn>
+      <em>E.g.</em>, squaring and taking the square root are inverses
+      (at least if you start with positive numbers),
+      so that squaring a square root or square rooting a square gives back the original number.
+      </fn>,
+      meaning that doing first one and then the other simply gets you back to where you started.
+      Since inverse functions work in either order,
+      that means that not only is the decryption of the encryption of some message just the original message,
+      but so also is the encryption of the decryption of a message.
+    </p>
+    <p>
+      That may seem like a mere computational curiosity <mdash/> why would anyone decrypt a message which had not first been encrypted?
+      <mdash/> but it actually has a very nice feature:
+      only the person who has the private key
+          <idx><h>private key</h></idx>
+          <idx><h>key</h><h>private</h></idx>
+          <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx>
+      for some asymmetric cryptosystem
+          <idx><h>asymmetric cryptosystem</h></idx>
+      can do the decryption,
+      while anyone who has downloaded the corresponding public key
+          <idx><h>public key</h></idx>
+          <idx><h>key</h><h>public</h></idx>
+          <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+      can do the encryption.
+      This situation where only the one person who has some secret information
+      (the private key
+          <idx><h>private key</h></idx>
+          <idx><h>key</h><h>private</h></idx>
+          <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx>)
+      can do something while everyone else can do some other thing using a piece of public information
+      (the public key
+          <idx><h>public key</h></idx>
+          <idx><h>key</h><h>public</h></idx>
+          <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>)
+      sounds very much like what it supposed to happen in a digital signature
+          <idx><h>digital signature</h></idx>
+          <idx><h>signature</h><h>digital</h></idx>
+      scheme.
+    </p>
+    <p>
+      To be specific, suppose Bilbo wants to be able to digitally sign
+          <idx><h>digital signature</h></idx>
+          <idx><h>signature</h><h>digital</h></idx>
+      some message <m>m</m>,
+      and Aragorn wants to be able to verify<idx><h>signature</h><h>digital!verification</h></idx>
+          <idx><h>verification algorithm [for a digital signature]</h></idx>
+      the signature.
+      First, Bilbo should generate
+          <idx><h>key</h><h>generation</h></idx>
+      a public/private
+          <idx><h>public key</h></idx>
+          <idx><h>key</h><h>public</h></idx>
+          <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>private key</h></idx>
+          <idx><h>key</h><h>private</h></idx>
+          <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx>
+      key pair and put his public key on his website.
+      Then he should use the decryption
+          <idx><h>decryption</h></idx>
+      algorithm, with his private key
+          <idx><h>private key</h></idx>
+          <idx><h>key</h><h>private</h></idx>
+          <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>,
+          <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx>
+      on the message <m>m</m>, yielding a chunk of data we'll call <m>s</m>.
+      Finally, Bilbo should send both the message <m>m</m> and the signature <m>s</m> to Aragorn.
+    </p>
+    <p>
+      Aragorn will have downloaded Bilbo's public key
+          <idx><h>public key</h></idx>
+          <idx><h>key</h><h>public</h></idx>
+          <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>.
+          <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+      What he can do is encrypt Bilbo's (purported) signature <m>s</m>,
+      using that public key
+          <idx><h>public key</h></idx>
+          <idx><h>key</h><h>public</h></idx>
+          <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>,
+          <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+      to get a chunk of data <m>m^\prime</m>.
+      Then Aragorn will <term>accept</term>
+      the signature as valid if his
+      <m>m^\prime</m> is the same as Bilbo's message <m>m</m>.
+      Since only the person who has Bilbo's private key
+          <idx><h>private key</h></idx>
+          <idx><h>key</h><h>private</h></idx>
+          <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx>
+      should be able to make a chunk of data <m>s</m> whose encryption is <m>m</m>,
+      this method does implement the digital signature
+          <idx><h>digital signature</h></idx>
+          <idx><h>signature</h><h>digital</h></idx>
+      scheme as promised.
+    </p>
+    <p>
+      Graphically:
+    </p>
+    <p>
+      <term>Naive digital signatures:</term>
+    </p>
+    <p>
+      \begin{adjustbox}{center}
+    </p>
+    <tabular>
+      <row bottom="minor">
+        <cell></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>Aragorn</cell>
+        <cell>on public network</cell>
+        <cell>Bilbo</cell>
+      </row>
+      <row bottom="minor">
+        <cell></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>generate key pair <m>(k^B_e,k^B_d)</m> for</cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>asymmetric cryptosystem <m>\Aa</m>;</cell>
+      </row>
+      <row>
+        <cell>download <m>k^B_e</m></cell>
+        <cell><m>\leftarrowtail\ \ \</m> public encryption key<idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>public key</h></idx>
+          <idx><h>key</h><h>public</h></idx>
+          <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+          <nbsp/><m>k^B_e\ \ \ \leftarrowtail</m></cell>
+        <cell>publish <m>k^B_e</m></cell>
+      </row>
+      <row bottom="minor">
+        <cell></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>with message <m>m</m>:</cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>decrypt <m>m</m> using <m>\Aa</m> with</cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>private key <m>k^B_d</m>, getting <m>s</m>;</cell>
+      </row>
+      <row>
+        <cell>receive <m>(m,s)</m></cell>
+        <cell><m>\leftarrowtail\ \ \</m> signed message<nbsp/><m>(m,s)\ \ \ \leftarrowtail</m></cell>
+        <cell>transmit <m>(m,s)</m></cell>
+      </row>
+      <row bottom="minor">
+        <cell></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>encrypt <m>s</m> using <m>\Aa</m> with</cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>public key <m>k^B_e</m>, getting <m>m^\prime</m>;</cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>if <m>m^\prime=m</m></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell><sc>accept</sc> <nbsp/></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>else   <nbsp/><nbsp/></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell><nbsp/><nbsp/><sc>reject</sc></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row bottom="minor">
+        <cell></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+    </tabular>
+    <p>
+      \end{adjustbox}
+    </p>
+    <question xml:id="az_naiveDS">
+      <statement>
+        <p>
+          Does all of this make sense?
+          What was new or interesting, or what was old and uninteresting?
+          Do you feel comfortable with the way these naive digital signature
+              <idx><h>digital signature</h></idx>
+          s
+              <idx><h>signature</h><h>digital</h></idx>
+          are generated and verified<idx><h>signature</h><h>digital!verification</h></idx>
+          ?
+              <idx><h>verification algorithm [for a digital signature]</h></idx>
+        </p>
+      </statement>
+    </question>
+    <exercise xml:id="ct_naiveDS">
+      <statement>
+        <p>
+          Write a Python function <c>sign(key, m)</c> which takes as input a full (public
+              <idx><h>public key</h></idx>
+              <idx><h>key</h><h>public</h></idx>
+              <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+              <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+          and private
+              <idx><h>private key</h></idx>
+              <idx><h>key</h><h>private</h></idx>
+              <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>
+              <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx>) <c>key</c> for RSA
+              <idx><h>cryptosystem</h><h>RSA</h></idx>,
+              <idx><h>RSA cryptosystem</h></idx>
+          in the form of a byte string that might have been produced by <c>exportKey()</c> and a
+          (byte string)
+          message <c>m</c> and produces the signature <c>s</c> on <c>m</c> as described above.
+          To do this, use <c>RSA.importKey</c> on the <c>key</c> variable to build an RSA<idx><h>Crypto.PublicKey [Python module]@<c>Crypto.PublicKey</c> [Python module]</h><h>RSA@<c>RSA</c></h></idx>
+              <idx><h>Python</h><h>RSA class in Crypto.PublicKey module@<c>RSA</c> class in <c>Crypto.PublicKey</c> module</h></idx>
+              <idx><h>RSA [Python class in Crypto.PublicKey module]@<c>RSA</c> [Python class in <c>Crypto.PublicKey</c> module]</h></idx>
+          object.
+          Use the <c>decrypt</c> method of this RSA<idx><h>Crypto.PublicKey [Python module]@<c>Crypto.PublicKey</c> [Python module]</h><h>RSA@<c>RSA</c></h></idx>
+              <idx><h>Python</h><h>RSA class in Crypto.PublicKey module@<c>RSA</c> class in <c>Crypto.PublicKey</c> module</h></idx>
+              <idx><h>RSA [Python class in Crypto.PublicKey module]@<c>RSA</c> [Python class in <c>Crypto.PublicKey</c> module]</h></idx>
+          object on the variable <c>m</c> to produce the signature <c>s</c>,
+          which your method should return.
+        </p>
+        <p>
+          Next, write a Python function <c>verify(pk, m, s)</c><idx><h>signature</h><h>digital!verification</h></idx>
+              <idx><h>verification algorithm [for a digital signature]</h></idx>
+          which takes as input a public key
+              <idx><h>public key</h></idx>
+              <idx><h>key</h><h>public</h></idx>
+              <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+              <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+           <c>pk</c> for RSA
+              <idx><h>cryptosystem</h><h>RSA</h></idx>,
+              <idx><h>RSA cryptosystem</h></idx>
+          in the form of a byte string that might have been produced by <c>exportKey()</c>, a
+          (byte string)
+          message <c>m</c>, and a
+          (byte string)
+          signature <c>s</c> on that message,
+          and returns a Boolean which indicates if the signature
+              <idx><h>digital signature</h></idx>
+              <idx><h>signature</h><h>digital</h></idx>
+          is valid or not, following the scheme above.
+          To do this, use <c>RSA.importKey</c> on the <c>pk</c> variable to build an RSA<idx><h>Crypto.PublicKey [Python module]@<c>Crypto.PublicKey</c> [Python module]</h><h>RSA@<c>RSA</c></h></idx>
+              <idx><h>Python</h><h>RSA class in Crypto.PublicKey module@<c>RSA</c> class in <c>Crypto.PublicKey</c> module</h></idx>
+              <idx><h>RSA [Python class in Crypto.PublicKey module]@<c>RSA</c> [Python class in <c>Crypto.PublicKey</c> module]</h></idx>
+          object <c>public_key</c> and use the <c>encrypt</c> method of <c>public_key</c> to create the byte string <c>mprime</c>.
+          Don't forget that <c>encrypt</c> takes a second,
+          dummy variable which may as well have the value <c>1</c> and returns a tuple,
+          the 0th element of which is the encryption.
+          In other words,
+          you need to use <c>mprime = public_key(s, 1)[0]</c>.
+          Then simply return the (Boolean) value of <c>mprime == m</c> .
+        </p>
+        <p>
+          The idea is that you should be able to use these functions in situations like
+        </p>
+<program><input>>>> # Bilbo does:
+>>> from Crypto.PublicKey import RSA
+>>> key = RSA.generate(1024)
+>>> full_key_exported = key.exportKey()
+>>> public_key_exported = key.publicKey().exportKey()
+>>> # Bilbo puts the public_key_exported on his website
+>>> m = b'some message Bilbo wants to sign'
+>>> s = sign(full_key_exported, m)
+>>> # Bilblo sends (m,s) to Aragorn, maybe by email
+>>> # Aragorn downloads the public_key_exported and
+>>> # gets an email containing (m,s) and does:
+>>> verify(public_key_exported, m, s)
+>>> # if it is True, he can trust the message</input></program>
+      </statement>
+    </exercise>
+  </subsection>
+  <subsection xml:id="ssec_DS_Ndsuhf">
+    <title>Better digital signatures using hash functions</title>
+    <p>
+          <idx><h>digital signature</h></idx>
+          <idx><h>signature</h><h>digital</h></idx>
+          <idx><h>hash functions</h></idx>
+    </p>
+    <p>
+      One big problem with the naive digital signature
+          <idx><h>digital signature</h></idx>
+      s
+          <idx><h>signature</h><h>digital</h></idx>
+      described above is that they are (potentially) ... big.
+      That is, the signature <m>s</m> on a message <m>m</m> is (essentially) the same size as the message itself <mdash/> after all,
+      it's a decryption, pretending the message is a ciphertext.
+      So signing a large document,
+      or maybe a large database or high-resolution image would basically require an unacceptable twice the space to store or transmit!
+    </p>
+    <p>
+      What we need to make much smaller signatures
+          <idx><h>digital signature</h></idx>
+          <idx><h>signature</h><h>digital</h></idx>
+      is some sort of algorithm which essentially <em>summarizes</em>
+      the contents of the message <m>m</m> you want to sign.
+      Then a very similar signature
+          <idx><h>digital signature</h></idx>
+          <idx><h>signature</h><h>digital</h></idx>
+      scheme to the one described above can do its verification algorithm<idx><h>signature</h><h>digital!verification</h></idx>
+          <idx><h>verification algorithm [for a digital signature]</h></idx>
+      by comparing the encrypted signature to the summary of the message,
+      rather than to the entire message.
+    </p>
+    <p>
+      There's a name for this magical summarizing algorithm:
+    </p>
+    <definition xml:id="def_hashfunction">
+      <statement>
+        <p>
+          A <term>cryptographic hash function
+              <idx><h>hash function</h></idx>
+          </term> is an algorithm <m>H</m> which takes as inputs bit strings <m>x</m> of arbitrary length and produces outputs <m>H(x)</m> of a fixed size,
+          satisfying the properties:
+          <ol>
+            <li>
+              <p>
+                <q><term>ease of computation</term></q>
+                computation of <m>H(x)</m> is very fast;
+              </p>
+            </li>
+            <li>
+              <p>
+                <q><term>pre-image resistance</term>
+                  <idx><h>pre-image resistance</h></idx>
+                </q>
+                starting with any bit string <m>y</m> of the size of the outputs of <m>H</m>,
+                it is very difficult to find a bit string <m>x</m> with the property that <m>H(x)=y</m>;
+              </p>
+            </li>
+            <li>
+              <p>
+                <q><term>second pre-image resistance</term><idx><h>second pre-image resistance</h></idx>
+                </q>
+                starting with any specific bit string <m>x_1</m>,
+                it is very difficult to find another <m>x_2</m> such that <m>H(x_2)=H(x_1)</m>;
+              </p>
+            </li>
+            <li>
+              <p>
+                <q><term>collision resistance</term>
+                  <idx><h>collision resistance</h></idx>
+                </q>
+                it is very difficult to find any two bit strings <m>x_1</m> and <m>x_2</m> such that <m>H(x_2)=H(x_1)</m>.
+              </p>
+            </li>
+          </ol>
+        </p>
+      </statement>
+    </definition>
+    <p>
+      In some sense, the key phrase in the above definition is
+      <q>very difficult,</q>
+      in the sense that there are certainly very many possible inputs to a hash function
+          <idx><h>hash function</h></idx>
+      which give the same output <mdash/> in fact,
+      there are an infinite number of such colliding inputs!
+      Think about it: if the output size of a hash function
+          <idx><h>hash function</h></idx>
+      is, say, 256 bits,
+      then what happens if you look at input bit strings of length 257?
+      There are twice as many input of that size as there are outputs,
+      so the most efficient possible way to spread out the way the outputs come from inputs would have every output coming from two inputs!
+      And the same argument says there are at least four inputs of length 258 bits giving the same output,
+      <em>etc.</em> But to be a cryptographic hash function,
+          <idx><h>hash function</h></idx>
+      it must be <em>very hard</em> to find such collisions.
+    </p>
+    <p>
+      In practice,
+      what this means is that the algorithms used for hash functions
+          <idx><h>hash functions</h></idx>
+      do a lot of random fiddling around with the bits of their inputs,
+      so there is not enough structure in the algorithm which might give an attacker a systematic way to try to find collisions or pre-images or second pre-images.
+      Without structure,
+      the only option left would seem to be a brute-force attack,
+          <idx><h>brute-force attack</h></idx>
+      but since there are roughly as many bit strings of length 256 as there are particles in the universe
+      (leaving out photons and neutrinos, though),
+      brute-force is not a viable attack.
+    </p>
+    <p>
+      Cryptographic hash function
+          <idx><h>hash function</h></idx>
+      s are useful because if you have a message or document <mdash/> think of it as a bit string <m>m</m> <mdash/> the <m>H(m)</m> acts a kind of fingerprint for <m>m</m>.
+      For example:
+      suppose Bilbo tells Aragorn what <m>H(m)</m> is without revealing <m>m</m> on Monday,
+      and only on Friday reveals <m>m</m>.
+      Aragorn can be confident that it was the same <m>m</m> Bilbo was thinking of on Monday as he revealed on Friday,
+      because it would have been
+      <q>very difficult</q>
+      to find another <m>m^\prime</m> for which <m>H(m^\prime)=H(m)</m>.
+    </p>
+    <question xml:id="az_hashfunction">
+      <statement>
+        <p>
+          Does all of this make sense?
+          What was new or interesting, or what was old and uninteresting?
+          Do you feel like you understand what is useful about a hash function,
+              <idx><h>hash function</h></idx>
+          and why there are theoretically infinitely many failures of the conditions pre-image resistance,
+              <idx><h>pre-image resistance</h></idx>
+          second pre-image resistance,
+              <idx><h>second pre-image resistance</h></idx>
+          and collision resistance
+              <idx><h>collision resistance</h></idx>
+          but nevertheless the fact that it is
+          <q>very difficult</q>
+          to find those failures makes hash function
+              <idx><h>hash function</h></idx>
+          s practical?
+        </p>
+      </statement>
+    </question>
+    <p>
+      There are a number of hash functions
+          <idx><h>hash functions</h></idx>
+      in use today,
+      and there are some which were used for a while but which now are no longer considered secure.
+      As mentioned above, the security of a hash function
+          <idx><h>hash function</h></idx>
+      in part rests upon its lack of structure ... but any algorithm which is clear enough to be written down and accepted as a standard must have some structure,
+      and eventually computer scientists have found the way to attack some of the older hash function
+          <idx><h>hash function</h></idx>
+      s using only that little bit of structure.
+      Here are some hash function
+          <idx><h>hash function</h></idx>
+      s which were or are widely used:
+      <ul>
+        <li>
+          <title>invalidlabel</title>
+          <p>
+            For around a decade starting in the early 1990s,
+            the most widely used cryptographic hash function was called <term>md5</term>.
+              <idx><h>md5</h></idx>
+          This algorithm was developed by Ron Rivest
+              <idx><h>Rivest, Ron</h></idx>
+            and published in 1992.
+            The output size of md5
+              <idx><h>md5</h></idx>
+            is 128 bits.
+            While md5
+              <idx><h>md5</h></idx>
+            was thought to be flawed since the middle 1990s,
+            a real attack was not published until 2004,
+            when it was shown not to be collision resistant<nbsp/><xref ref="wang2005break"/>.
+            However, md5
+              <idx><h>md5</h></idx>
+            is still used extensively today to verify that a large data transfer has not suffered a transmission error <mdash/> <em>i.e.,</em>
+            it is still a useful tool to test for non-malicious data corruption.
+          </p>
+        </li>
+        <li>
+          <title>invalidlabel</title>
+          <p>
+            The most widely used cryptographic hash function
+              <idx><h>hash function</h></idx>
+            from the late 1990s until recently,
+            and one which is built into many widely accepted and standardized cryptographic protocols,
+            is <term>SHA-1</term>,
+              <idx><h>SHA-1</h></idx>
+            with an output size of 160 bits.
+            SHA-1
+              <idx><h>SHA-1</h></idx>
+            was developed by US National Security Agency<idx><h>National Security Agency, NSA</h></idx>
+              <idx><h>NSA, National Security Agency</h></idx>
+            in a semi-public process,
+            and was adopted by the National Institute of Standards and Technology [NIST]<idx><h>National Institute of Standards and Technology [NIST]</h></idx>
+              <idx><h>NIST: National Institute of Standards and Technology</h></idx>
+              <idx><h>National Institute of Standards and Technology, [NIST]</h></idx>
+            as part of several US Federal Information Processing Standards.
+              <idx><h>Federal Information Processing Standards, US</h></idx>
+          In 2004, some work was published which indicated that SHA-1
+              <idx><h>SHA-1</h></idx>
+            might be vulnerable to certain kinds of attack.
+            (See<nbsp/><xref ref="poritz2004hash"/>.)
+            For this reason, NIST required in 2010 many US federal data protection applications to move to another hash function.
+          </p>
+        </li>
+        <li>
+          <title>invalidlabel</title>
+          <p>
+            At the time of this writing,
+            most security-conscious users and organizations recommend <term>SHA-2</term>,
+              <idx><h>SHA-2</h></idx>
+            usually in its <term>SHA-256</term>
+              <idx><h>SHA-256</h></idx>
+            variant, which has an output size of 256 bits.
+            Given recent revelations of the NSA's <idx><h>National Security Agency, US [NSA]</h></idx> involvement <mdash/> and weakening of <mdash/> cryptographic protocols,
+            it might be a cause of concern that NSA participated in the development of SHA-2.
+              <idx><h>SHA-2</h></idx>
+          </p>
+        </li>
+      </ul>
+    </p>
+    <p>
+      SHA-2
+          <idx><h>SHA-2</h></idx>
+      is implemented in {{<term>Python</term>
+          <idx><h>Python</h></idx>
+      }} with a class <c>SHA256</c><idx><h>SHA256 [Python class]@<c>SHA256</c> [Python class]</h></idx>
+          <idx><h>Python</h><h>SHA256 class@<c>SHA256</c> class</h></idx>
+      in the <c>Crypto.Hash</c><idx><h>Crypto [Python module]@<c>Crypto</c> [Python module]</h><h>Crypto.Hash@<c>Crypto.Hash</c></h></idx>
+          <idx><h>Python</h><h>Crypto.Hash module@<c>Crypto.Hash</c> module</h></idx>
+      module.
+      You can create this object with <c>SHA256.new(s)</c>,
+      where <c>s</c> is the entire byte string to be hashed.
+          <idx><h>hash function</h></idx>
+      Another way use this class,
+      particularly useful if there is a lot of data to be hashed,
+      is to pass <c>SHA356.new</c> the first piece of the data,
+      and the to call the class's <c>update</c> method with the remaining pieces of data.
+    </p>
+    <p>
+      In either approach,
+      when you are done feeding the <c>SHA256</c><idx><h>SHA256 [Python class]@<c>SHA256</c> [Python class]</h></idx>
+          <idx><h>Python</h><h>SHA256 class@<c>SHA256</c> class</h></idx>
+      instance your data to be hashed,
+      you can call the <c>digest()</c> method to get the hash value as a byte string,
+      or the <c>hexdigest()</c> method to get that same hash value as a character string written out in hexadecimal.
+      For example:
+    </p>
+    <p>
+      \begin{adjustbox}{center}
+    </p>
+<program><input>>>> from Crypto.Hash import SHA256
+>>> hash_object = SHA256.new(b'first bit of data')
+>>> hash_object.update(b'some more data')
+>>> hash_object.update(b'last bit of the data')
+>>> hash_object.digest()
+b':\x93"P`\xd2Y-\x8c/\xab\xfa=\x8e\xa7\xb7N\xdcF\xae[\xf9\xa4\xd
+6.\xa1\xfeR\xe4\xcb\x89\xb8'
+>>> hash_object.hexdigest()
+3a93225060d2592d8c2fabfa3d8ea7b74edc46ae5bf9a4d62ea1fe52e4cb89b8</input></program>
+    <p>
+      \end{adjustbox}
+    </p>
+    <p>
+      Note that you can get the <c>digest</c> from a <c>SHA256</c><idx><h>SHA256 [Python class]@<c>SHA256</c> [Python class]</h></idx>
+          <idx><h>Python</h><h>SHA256 class@<c>SHA256</c> class</h></idx>
+      instance and but still add more data by calling the <c>update</c> method and get a later <c>digest</c> which will be the hash function
+          <idx><h>hash function</h></idx>
+      output for all of the input you've given that instance since it was created with <c>new</c>.
+      What this means is that you must create a new instance with <c>new</c> every time you want to start fresh with computing the hash function
+          <idx><h>hash function</h></idx>
+      of a new bit string.
+    </p>
+    <exercise xml:id="ct_bitdiffsSHA256">
+      <statement>
+        <p>
+          Since SHA256
+              <idx><h>SHA256</h></idx>
+          is believed to have the properties that make it a good cryptographic hash function,
+              <idx><h>hash function</h></idx>
+          it must be that small changes in the input make for drastic changes in the output, 256-bit hash value.
+          In fact, the best thing would be for differences of just one bit in the input <mdash/> by changing a bit,
+          or adding one more bit to the sequence (somewhere:
+          adding it at the beginning, end,
+          or somewhere in the middle) to make approximately half of the bits in the hash value change.
+          Let's test this!
+        </p>
+        <p>
+          First, pick some base input byte string that you like of about 50 bytes.
+          Compute its SHA256
+              <idx><h>SHA256</h></idx>
+          hash value.
+              <idx><h>hash function</h></idx>
+          Now try changing one bit of this base input, computing the hash value
+              <idx><h>hash function</h></idx>
+          of the new input string,
+          and comparing the two hash values with your <c>bits_diff_display</c> from Code <xref ref="ct_bit_difference_checker">Task</xref>
+          to see where and how much the two hashes differ.
+        </p>
+        <p>
+          Repeat this several times
+          (at least 10 times),
+          changing bits at different locations in the input string,
+          and see each time how much it changes the bits of the hash string.
+          Also compute the average number of bits which were changed in the hash value in your experiments.
+        </p>
+      </statement>
+    </exercise>
+    <p>
+      As mentioned above, the fact that the cryptographic hash
+          <idx><h>hash function</h></idx>
+      of a message is a reliable fingerprint for the message allows us to make a much more efficient signature
+          <idx><h>digital signature</h></idx>
+          <idx><h>signature</h><h>digital</h></idx>
+      scheme.
+      In this scheme,
+      rather than sending the message and its decryption,
+          <idx><h>decryption</h></idx>
+      we send the message and the decryption of the hash
+          <idx><h>hash function</h></idx>
+      of the message.
+      Therefore the signature is a data chunk which is as big as the output size of the hash function
+          <idx><h>hash function</h></idx>
+      we're using, no matter how big is the message to be signed.
+    </p>
+    <p>
+      Graphically:
+    </p>
+    <p>
+      <term>Better [smaller] digital signatures with hashing:</term>
+    </p>
+    <p>
+      \begin{adjustbox}{center}
+    </p>
+    <tabular>
+      <row bottom="minor">
+        <cell></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>Aragorn</cell>
+        <cell>on public network</cell>
+        <cell>Bilbo</cell>
+      </row>
+      <row bottom="minor">
+        <cell></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>generate key pair <m>(k^B_e,k^B_d)</m> for</cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>asymmetric cryptosystem <m>\Aa</m>;</cell>
+      </row>
+      <row>
+        <cell>download <m>k^B_e</m></cell>
+        <cell><m>\leftarrowtail\ \ \</m> public encryption key<idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+          <idx><h>public key</h></idx>
+          <idx><h>key</h><h>public</h></idx>
+          <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+          <nbsp/><m>k^B_e\ \ \ \leftarrowtail</m></cell>
+        <cell>publish <m>k^B_e</m></cell>
+      </row>
+      <row bottom="minor">
+        <cell></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>with message <m>m</m>:</cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>hash <m>m</m> to get <m>d</m>;</cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>decrypt <m>d</m> using <m>\Aa</m> with</cell>
+      </row>
+      <row>
+        <cell></cell>
+        <cell></cell>
+        <cell>private key <m>k^B_d</m>, getting <m>s</m>;</cell>
+      </row>
+      <row>
+        <cell>receive <m>(m,s)</m></cell>
+        <cell><m>\leftarrowtail\ \ \</m> signed message<nbsp/><m>(m,s)\ \ \ \leftarrowtail</m></cell>
+        <cell>transmit <m>(m,s)</m></cell>
+      </row>
+      <row bottom="minor">
+        <cell></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>encrypt <m>s</m> using <m>\Aa</m> with</cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>public key <m>k^B_e</m>, getting <m>d^\prime</m>;</cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>hash <m>m</m> to get <m>d</m>;</cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>if <m>d^\prime=d</m></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell><sc>accept</sc> <nbsp/></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell>else   <nbsp/><nbsp/></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row>
+        <cell><nbsp/><nbsp/><sc>reject</sc></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+      <row bottom="minor">
+        <cell></cell>
+        <cell></cell>
+        <cell></cell>
+      </row>
+    </tabular>
+    <p>
+      \end{adjustbox}
+    </p>
+    <question xml:id="az_DSwithhashing">
+      <statement>
+        <p>
+          Does all of this make sense?
+          What was new or interesting, or what was old and uninteresting?
+          Do you feel comfortable with how this new approach makes a secure digital signature
+              <idx><h>digital signature</h></idx>
+              <idx><h>signature</h><h>digital</h></idx>
+          scheme, because of its structure and the properties of a cryptographic hash function,
+              <idx><h>hash function</h></idx>
+          which is nevertheless much smaller than the naive digital signature
+              <idx><h>digital signature</h></idx>
+          s?
+              <idx><h>signature</h><h>digital</h></idx>
+        </p>
+      </statement>
+    </question>
+    <exercise xml:id="ct_DSwithhashing">
+      <statement>
+        <p>
+          Implement this new approach to making digital signature
+              <idx><h>digital signature</h></idx>
+          s
+              <idx><h>signature</h><h>digital</h></idx>
+          that uses a hash function
+              <idx><h>hash function</h></idx>
+          for smaller signatures.
+        </p>
+        <p>
+          That is, make new Python functions <c>signH(key, m)</c> and <c>verifyH(pk, m, s)</c> which have exactly the same inputs and outputs as the <c>sign(key, m)</c> and <c>verify(pk, m, s)</c> from Code <xref ref="ct_naiveDS">Task</xref>
+          and can be used in the same ways as those original functions,
+          but which use <c>SHA256</c><idx><h>SHA256 [Python class]@<c>SHA256</c> [Python class]</h></idx>
+              <idx><h>Python</h><h>SHA256 class@<c>SHA256</c> class</h></idx>
+          to make signatures which are always quite small.
+        </p>
+      </statement>
+    </exercise>
+  </subsection>
+</section>

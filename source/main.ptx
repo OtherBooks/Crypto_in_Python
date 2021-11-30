@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<pretext xmlns:xi="http://www.w3.org/2001/XInclude" xml:lang="en-US">
+  <docinfo>
+<macros>
+\def\tsval{Time-stamp: \lt  11 Jun 2021 10:35MDT >}
+\newcommand{\tsgutsb}[1]{\expandafter\tsgutsa #1\relax}
+\newcommand{\tsgutsa}[1]{#3 #4 #5 #6 #7\relax{#3 #4 #5  #6}}
+\def\timestamp{\tsgutsb{\tsval}}
+\newcommand{\dispcodestart}{\hfil\begin{BVerbatim}[bgcolor=lg]}
+\newcommand{\dispcodeend}{\end{BVerbatim}}
+\newcommand{\code}[1]{\code{\texttt{#1}}}
+\newcommand{\Python}{{\terminology{Python}\index{Python}}}
+\newcommand{\Pythonthree}{{\terminology{Python 3}}}
+\newcommand{\blue}[1]{{\color{blue}#1}}
+\newcommand{\red}[1]{{\color{red}#1}}
+\newcommand{\gray}[1]{{\color{gray}#1}}
+\newcommand{\bhref}[2]{\href{#1}{#2}}
+\newcommand{\blurl}[1]{\bhref{#1}{#1}}
+\newcommand{\Aa}{{\mathcal A}}
+\newcommand{\Ss}{{\mathcal S}}
+\renewcommand{\seename}{see}
+</macros>
+<latex-image-preamble>
+\usepackage{tikz}
+\usepackage{tkz-graph}
+\usepackage{tkz-euclide}
+\usetikzlibrary{patterns}
+\usetikzlibrary{positioning}
+\usetikzlibrary{matrix,arrows}
+\usetikzlibrary{calc}
+\usetikzlibrary{shapes}
+\usetikzlibrary{through,intersections,decorations,shadows,fadings}
+\usepackage{pgfplots}
+</latex-image-preamble>
+  </docinfo>
+  <book>
+    <title>A project-based introduction to crypto in Python</title>
+    <frontmatter>
+      <titlepage>
+        <author>
+          <personname>Jonathan A.~Poritz</personname>
+        </author>
+      </titlepage>
+    </frontmatter>
+    <xi:include href="./chap_release-notes.ptx"/>
+    <xi:include href="./preface.ptx"/>
+    <xi:include href="./chap_preliminaries.ptx"/>
+    <xi:include href="./chap_blockciphers.ptx"/>
+    <xi:include href="./chap_asymmetricCSs.ptx"/>
+    <backmatter>
+      <index>
+        <title>Index</title>
+        <index-list/>
+      </index>
+    </backmatter>
+  </book>
+</pretext>

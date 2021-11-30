@@ -1,0 +1,458 @@
+<section xml:id="sec_SAaSCB">
+  <title>Symmetric, asymmetric, and salty cryptosystems: basics</title>
+  <p>
+        <idx><h>symmetric cryptosystem</h></idx>
+        <idx><h>cryptosystem</h><h>symmetric</h></idx>
+        <idx><h>asymmetric cryptosystem</h></idx>
+        <idx><h>cryptosystem</h><h>asymmetric</h></idx>
+        <idx><h>cryptographic salt</h></idx>
+        <idx><h>salt</h><h>cryptographic</h></idx>
+    Looking more closely, the problem we noticed at the end of the last chapter stems from the fact that Alice and Bob both have to have the same key
+        <idx><h>key</h></idx>
+    to encrypt and decrypt, which they must therefore keep away from Eve.
+    After all, if Eve had the key,
+    she could encrypt and send messages to Bob pretending that they came from Alice,
+    and Eve could also intercept and decrypt the real messages that Alice was sending to Bob.
+    That's the problem with using the same key.
+    Cryptosystems that do this have a name:
+  </p>
+  <definition xml:id="def_symmetricCS">
+    <statement>
+      <p>
+        A <term>symmetric cryptosystem</term>
+            <idx><h>symmetric cryptosystem</h></idx>
+            <idx><h>cryptosystem</h><h>symmetric</h></idx>
+        is one in which the same key is used both to encrypt cleartexts to ciphertexts and also to decrypt ciphertexts to cleartexts.
+      </p>
+      <p>
+        Sometimes symmetric cryptosystem
+            <idx><h>symmetric cryptosystem</h></idx>
+        s are also called <term>private-key cryptosystem<idx><h>private-key cryptosystem</h></idx>
+        s</term>.
+            <idx><h>cryptosystem</h><h>private key</h></idx>
+      </p>
+    </statement>
+  </definition>
+  <p>
+    Graphically, symmetric cryptosystems work like this:
+  </p>
+  <p>
+    <nbsp/> <term>Symmetric [private-key] cryptosystem, graphically:</term>
+  </p>
+  <p>
+    \begin{adjustbox}{center}
+  </p>
+  <tabular>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>private agreement</cell>
+    </row>
+    <row>
+      <cell>Alice<nbsp/><nbsp/> \qquad<m>\longleftrightarrow</m><nbsp/><nbsp/> of shared key <m>k</m>\qquad<m>\longleftrightarrow</m>  <nbsp/><nbsp/> Bob</cell>
+    </row>
+    <row bottom="medium">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell  ></cell>
+      <cell>on public network</cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell>(where Eve is watching)</cell>
+      <cell></cell>
+    </row>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>creates cleartext message <m>m_A</m>;</cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>using <m>k</m>, encrypts <m>m_A</m> to <m>c_A</m></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>and transmits <m>c_A</m></cell>
+      <cell><nbsp/><m>\rightarrowtail\ \ \</m> ciphertext <m>c_A\ \ \ \rightarrowtail</m><nbsp/><nbsp/><nbsp/></cell>
+      <cell>receives <m>c_A</m>;</cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell></cell>
+      <cell>using <m>k</m>, decrypts <m>c_A</m></cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell></cell>
+      <cell>\ <nbsp/>and recovers cleartext <m>m_A</m><nbsp/><nbsp/><nbsp/></cell>
+    </row>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell></cell>
+      <cell>creates cleartext message <m>m_B</m>;</cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell></cell>
+      <cell>using <m>k</m>, encrypts <m>m_B</m> to <m>c_B</m></cell>
+    </row>
+    <row>
+      <cell>receives <m>c_B</m>;</cell>
+      <cell><nbsp/><m>\leftarrowtail\ \ \</m> ciphertext <m>c_B\ \ \ \leftarrowtail</m><nbsp/><nbsp/><nbsp/></cell>
+      <cell>and transmits <m>c_B</m></cell>
+    </row>
+    <row>
+      <cell>using <m>k</m>, decrypts <m>c_B</m></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>and recovers cleartext <m>m_B</m></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>\multicolumn{3}{|l|}{<nbsp/><nbsp/>   \qquad<em>etc....</em>}</cell>
+    </row>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+  </tabular>
+  <p>
+    \end{adjustbox}
+  </p>
+  <p>
+    The problem we're dealing with now is the initial private agreement of the secret key
+        <idx><h>key</h></idx>
+    <m>k</m>.
+  </p>
+  <p>
+    A way to get around this problem would be if Alice and Bob used different keys for encryption and decryption.
+    There's a name for this type of cryptosystem:
+  </p>
+  <definition xml:id="def_asymmetricCS">
+    <statement>
+      <p>
+        An <term>asymmetric cryptosystem</term>
+            <idx><h>asymmetric cryptosystem</h></idx>
+            <idx><h>cryptosystem</h><h>asymmetric</h></idx>
+        is one in which one key <m>k_e</m> <mdash/> called the <term>encryption</term>
+        or <term>public key</term>
+            <idx><h>public key</h></idx>
+            <idx><h>key</h><h>public</h></idx>
+            <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+            <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx> <mdash/> is used to encrypt cleartexts to ciphertexts, while a different key <m>k_d</m> <mdash/> called the <term>decryption</term> or <term>private key</term>
+            <idx><h>private key</h></idx>
+            <idx><h>key</h><h>private</h></idx>
+            <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>
+            <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx> <mdash/> is needed to decrypt ciphertexts to cleartexts.
+      </p>
+      <p>
+        Sometimes asymmetric cryptosystem
+            <idx><h>asymmetric cryptosystem</h></idx>
+        s are also called <term>public-key cryptosystem
+            <idx><h>public-key cryptosystem</h></idx>
+        s</term>,
+            <idx><h>cryptosystem</h><h>public key</h></idx>
+        because usually when one is using them,
+        one posts one's encryption key<idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+            <idx><h>public key</h></idx>
+            <idx><h>key</h><h>public</h></idx>
+            <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx> <m>k_e</m> in a public place to everyone to see and use.
+      </p>
+    </statement>
+  </definition>
+  <p>
+    Graphically, asymmetric cryptosystems work like this:
+  </p>
+  <p>
+    <term>Asymmetric [public-key] cryptosystem, graphically:</term>
+  </p>
+  <p>
+    \begin{adjustbox}{center}
+  </p>
+  <tabular>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>Alice</cell>
+      <cell>on public network</cell>
+      <cell>Bob</cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell>(where Eve is watching)</cell>
+      <cell></cell>
+    </row>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>generate key pair <m>(k^A_e,k^A_d)</m></cell>
+      <cell></cell>
+      <cell>generate key pair <m>(k^B_e,k^B_d)</m></cell>
+    </row>
+    <row>
+      <cell>download <m>k^B_e</m></cell>
+      <cell><m>\leftarrowtail\ \ \</m> public encryption key<idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+        <idx><h>public key</h></idx>
+        <idx><h>key</h><h>public</h></idx>
+        <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+        <nbsp/><m>k^B_e\ \ \ \leftarrowtail</m></cell>
+      <cell>publish <m>k^B_e</m></cell>
+    </row>
+    <row>
+      <cell>publish <m>k^A_e</m></cell>
+      <cell><m>\rightarrowtail\ \ \</m> public encryption key<idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+        <idx><h>public key</h></idx>
+        <idx><h>key</h><h>public</h></idx>
+        <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+        <nbsp/><m>k^A_e\ \ \ \rightarrowtail</m></cell>
+      <cell>download <m>k^A_e</m></cell>
+    </row>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>create cleartext message <m>m_A</m>;</cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>using <m>k^B_e</m>, encrypt <m>m_A</m> to <m>c_A</m></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>and transmit <m>c_A</m></cell>
+      <cell><nbsp/><m>\rightarrowtail\ \ \</m> ciphertext <m>c_A\ \ \ \rightarrowtail</m><nbsp/><nbsp/><nbsp/></cell>
+      <cell>receive <m>c_A</m>;</cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell></cell>
+      <cell>using <m>k^B_d</m>, decrypt <m>c_A</m></cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell></cell>
+      <cell>\ <nbsp/>and recover cleartext <m>m_A</m><nbsp/><nbsp/><nbsp/></cell>
+    </row>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell></cell>
+      <cell>create cleartext message <m>m_B</m>;</cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell></cell>
+      <cell>using <m>k^A_e</m>, encrypt <m>m_B</m> to <m>c_B</m></cell>
+    </row>
+    <row>
+      <cell>receive <m>c_B</m>;</cell>
+      <cell><nbsp/><m>\leftarrowtail\ \ \</m> ciphertext <m>c_B\ \ \ \leftarrowtail</m><nbsp/><nbsp/><nbsp/></cell>
+      <cell>and transmit <m>c_B</m></cell>
+    </row>
+    <row>
+      <cell>using <m>k^A_d</m>, decrypt <m>c_B</m></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>and recover cleartext <m>m_B</m></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>\multicolumn{3}{|l|}{<nbsp/><nbsp/>   \qquad<em>etc....</em>}</cell>
+    </row>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+  </tabular>
+  <p>
+    \end{adjustbox}
+  </p>
+  <question xml:id="az_asymmetricCS">
+    <statement>
+      <p>
+        Does all of this make sense?
+        What was new or interesting, or what was old and uninteresting?
+        Do you understand how Alice and Bob would use an asymmetric cryptosystem?
+      </p>
+    </statement>
+  </question>
+  <p>
+    The most basic part of designing
+    <em>secure</em> asymmetric cryptosystem
+        <idx><h>asymmetric cryptosystem</h></idx>
+    s is that <term>it must be infeasible for Eve to compute the decryption key <m>k_d</m> even when she knows the [public] encryption key<idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+        <idx><h>public key</h></idx>
+        <idx><h>key</h><h>public</h></idx>
+        <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx> <m>k_e</m></term>.
+    After all, the encryption key is public,
+    so if it were feasible to do this calculation, Eve would simply do that and be able to decrypt all ciphertexts herself.
+  </p>
+  <p>
+    Another consideration for the security of these systems is that the space of possible decryption keys must be very large.
+    Otherwise, Eve could simply do the brute-force attack
+        <idx><h>brute-force attack</h></idx>
+    of trying all of the possible decryption keys.
+  </p>
+  <p>
+    Actually, for asymmetric cryptosystem
+        <idx><h>asymmetric cryptosystem</h></idx>
+    s there is another possible brute-force attack
+        <idx><h>brute-force attack</h></idx>
+    which goes like this: If Eve had a pretty good idea of a fairly small set of possible messages that Alice might be encrypting to send to Bob, Eve could simply use the public encryption key<idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+        <idx><h>public key</h></idx>
+        <idx><h>key</h><h>public</h></idx>
+        <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+    herself and do all of those encryptions.
+    If one her guesses for the original message was correct,
+    then its encryption will be the same as the ciphertext which she saw on the public network,
+    going from Alice to Bob.
+    Therefore, the space of possible messages must be quite large to prevent this kind of brute-force attack.
+        <idx><h>brute-force attack</h></idx>
+  </p>
+  <p>
+    There is actually a nice way to prevent this message space-based brute-force attack,
+        <idx><h>brute-force attack</h></idx>
+    by making a cleartext message artificially larger before encrypting it.
+    One usually does this by adding some
+  </p>
+  <definition xml:id="def_salt">
+    <statement>
+      <p>
+        <term>Cryptographic salt</term>
+            <idx><h>cryptographic salt</h></idx>
+            <idx><h>salt</h><h>cryptographic</h></idx>
+        is random data added to a message Alice wants to sent to Bob before she encrypts it,
+        which is automatically removed at Bob's end,
+        after he decrypts the ciphertext.
+      </p>
+    </statement>
+  </definition>
+  <p>
+    Once Alice salts her message,
+    if Eve wants to do the message space-based brute-force attack,
+        <idx><h>brute-force attack</h></idx>
+    she must try encrypting all possible messages Alice might have sent,
+    <em>plus</em> all possible random choices of salt.
+    With even a relatively modest number of salt bits,
+    this will make this brute-force attack
+        <idx><h>brute-force attack</h></idx>
+    entirely too time-consuming.
+  </p>
+  <question xml:id="az_asymmetricCSattacks">
+    <statement>
+      <p>
+        Does all of this make sense?
+        What was new or interesting, or what was old and uninteresting?
+        Do you understand this new,
+        <q>message space-based brute-force attack
+            <idx><h>brute-force attack</h></idx>
+        </q>
+        and how cryptographic salt
+            <idx><h>cryptographic salt</h></idx>
+            <idx><h>salt</h><h>cryptographic</h></idx>
+        prevents it?
+      </p>
+    </statement>
+  </question>
+  <p>
+    One last remark about key
+        <idx><h>key</h></idx>
+    s and <em>generating them</em>,
+    for asymmetric cryptosystem
+        <idx><h>asymmetric cryptosystem</h></idx>
+    s: Keys for asymmetric cryptosystems are more delicate than for symmetric cryptosystem
+        <idx><h>symmetric cryptosystem</h></idx>
+    s. Typically, one picks a private/decryption key
+        <idx><h>private key</h></idx>
+        <idx><h>key</h><h>private</h></idx>
+        <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>
+        <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx>
+    of a certain size
+        <idx><h>key</h><h>size</h></idx>
+    <mdash/> large, to prevent brute-force attack
+        <idx><h>brute-force attack</h></idx>
+    s, and often using strong randomness,
+    also to prevent brute-force attacks which would be possible if the adversary knew something about the structure of the keys you are likely to choose.
+  </p>
+  <p>
+    Then one does a computation using that private/decryption key
+        <idx><h>private key</h></idx>
+        <idx><h>key</h><h>private</h></idx>
+        <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>
+        <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx>
+    to create the corresponding public/encryption key<idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+        <idx><h>public key</h></idx>
+        <idx><h>key</h><h>public</h></idx>.
+        <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+    This computation must be very hard to <em>undo</em>,
+    since otherwise Eve could find the private key from knowing its public key!
+  </p>
+  <p>
+    Therefore the whole process of key creation can be quite complicated for asymmetric cryptosystem
+        <idx><h>asymmetric cryptosystem</h></idx>
+    s. Implementations must have a key generation
+        <idx><h>key</h><h>generation</h></idx>
+    step which can actually be quite time-intensive,
+    but which is run only once by the person who wants to be able to receive encrypted messages from strangers on the 'net.
+    This is of course in contrast with the situation of symmetric cryptosystem
+        <idx><h>symmetric cryptosystem</h></idx>
+    s, where Alice and Bob simply agree upon some key
+        <idx><h>key</h></idx>
+    with the correct number of bytes, however they want,
+    and start encrypting and decrypting right away: there is no special
+    <q><em>key generation</em>
+        <idx><h>key</h><h>generation</h></idx>
+    </q>
+    step for symmetric cryptosystems.
+  </p>
+</section>

@@ -1,0 +1,62 @@
+<chapter xmlns:xi="http://www.w3.org/2001/XInclude"  xml:id="chap_blockciphers">
+  <title>Block Ciphers</title>
+  <introduction>
+    <p>
+      Most of the encryption today on the Internet is probably done with one of the cryptosystems called <em>block cipher
+          <idx><h>block cipher</h></idx>
+      s</em>, which do not provide as perfect cryptographic security as a one-time pad,
+      but which have a much,
+      much more modest level of difficulty in key management.
+      Block ciphers are also very fast and have some nice security features that cryptosystems structured like the ones we've seen so far do no.
+    </p>
+    <p>
+      Examples of block ciphers you may have encountered might include:
+      <ul>
+        <li>
+          <title>invalidlabel</title>
+          <p>
+            <em>Advanced Encryption Standard [AES]<idx><h>Advanced Encryption Standard [AES]</h></idx>
+            </em>,
+              <idx><h>AES (Advanced Encryption Standard)</h></idx>
+            authorized by the National Institute of Standards and Technology [NIST]<idx><h>National Institute of Standards and Technology [NIST]</h></idx>
+              <idx><h>NIST: National Institute of Standards and Technology</h></idx>
+            for use by the US federal government in unclassified situations;
+          </p>
+        </li>
+        <li>
+          <title>invalidlabel</title>
+          <p>
+            the <em>Data Encryption Standard [DES]<idx><h>Data Encryption Standard [DES]</h></idx>
+            </em>,
+              <idx><h>DES: Data Encryption Standard</h></idx>
+            which was the NIST-authorized block cipher from 1977 to 2001; and
+          </p>
+        </li>
+        <li>
+          <title>invalidlabel</title>
+          <p>
+            <em>3DES</em>
+              <idx><h>2@3DES, triple DES</h></idx>
+            or <em>triple DES
+              <idx><h>triple DES</h></idx>
+            </em>, a block cipher pretty much consisting of doing DES three times,
+            which was used for a while after it was known that DES was nearly broken but before AES was standardized.
+          </p>
+        </li>
+      </ul>
+    </p>
+    <p>
+      In this chapter,
+      we will very briefly touch upon some of the most basic design principles for block cipher
+          <idx><h>block cipher</h></idx>
+      s, do a little {{<term>Python</term>
+          <idx><h>Python</h></idx>
+      }} implementation to explore these principles,
+      and use some code libraries to do real encryption with state-of-the art block ciphers.
+    </p>
+  </introduction>
+  <xi:include  href="sec_WebodScad.ptx"/>
+  <xi:include  href="sec_EabaatwAES.ptx"/>
+  <xi:include  href="sec_Emoltabwabc.ptx"/>
+  <xi:include  href="sec_Sco4bc.ptx"/>
+</chapter>

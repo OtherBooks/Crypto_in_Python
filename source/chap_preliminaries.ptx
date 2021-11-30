@@ -1,0 +1,101 @@
+<chapter xmlns:xi="http://www.w3.org/2001/XInclude"  xml:id="chap_preliminaries">
+  <title>Preliminaries</title>
+  <introduction>
+    <p>
+      Here are some Greek roots:
+      <ul>
+        <li>
+          <title>\textit{kryptos}, <m>\kappa\rho\upsilon\pi\tau o\sigma</m></title>
+          <p>
+            secret, hidden <idx><h>kryptos [<m>\kappa\rho\upsilon\pi\tau o\sigma</m>, Greek root]</h></idx>
+          </p>
+        </li>
+        <li>
+          <title>\textit{logos}, <m>\lambda\acute{o}\gamma o\sigma</m></title>
+          <p>
+            word, study,
+            speech <idx><h>logos [<m>\lambda\acute{o}\gamma o\sigma</m>, Greek root]</h></idx>
+          </p>
+        </li>
+        <li>
+          <title>\textit{graph}, <m>\gamma\rho\acute{\alpha}\phi\omega</m></title>
+          <p>
+            write, written <idx><h>graph [<m>\gamma\rho\acute{\alpha}\phi\omega</m>, Greek root]</h></idx>
+          </p>
+        </li>
+        <li>
+          <title>\textit{analysis}, <m>\alpha\nu\acute{\alpha}\lambda\upsilon\eta</m></title>
+          <p>
+            analysis <idx><h>analysis [<m>\alpha\nu\acute{\alpha}\lambda\upsilon\eta</m>, Greek root]</h></idx>
+          </p>
+        </li>
+      </ul>
+    </p>
+    <p>
+      From these (and others), modern (technical) English gets the words
+      <ul>
+        <li>
+          <title>\textit{cryptosystem}</title>
+          <p>
+            a set of algorithms for protecting secrets,
+            for hiding information so that only the intended persons have access to it
+              <idx><h>cryptosystem</h></idx>
+          </p>
+        </li>
+        <li>
+          <title>\textit{cryptography}</title>
+          <p>
+            work done to make cryptosystems
+              <idx><h>cryptography</h></idx>
+          </p>
+        </li>
+        <li>
+          <title>\textit{cryptanalysis}</title>
+          <p>
+            work done to circumvent the protections of
+              <idx><h>cryptanalysis</h></idx>
+            cryptosystems <mdash/> to
+            <q>crack</q>
+            a cryptosystem
+          </p>
+        </li>
+        <li>
+          <title>\textit{cryptology}</title>
+          <p>
+            the combination of cryptography and cryptanalysis,
+            often abbreviated simply to {crypto
+              <idx><h>crypto</h></idx>
+            }.
+              <idx><h>cryptology</h></idx>
+          </p>
+        </li>
+      </ul>
+    </p>
+    <p>
+      Beware that <em>cryptography</em> is widely
+      (but inappropriately!)
+      used as a synecdoche for <em>cryptology</em>.
+      We will use these words more carefully,
+      except when the differences between the words is not so important,
+      in which case we will use the word <em>crypto
+          <idx><h>crypto</h></idx>
+      </em> as short for whichever of cryptology,
+      cryptography, or cryptanalysis is most appropriate<fn>
+      Note this use of
+      <q>crypto</q>
+      conflicts a little with a silly modern usage of that word as short for <em>cryptocurrency
+          <idx><h>cryptocurrency</h></idx>
+      </em>.
+      We will return to that topic much later,
+      when we talk about <em>blockchains
+          <idx><h>blockchains</h></idx>
+      </em>.
+      </fn>
+    </p>
+  </introduction>
+  <xi:include  href="sec_Ssh.ptx"/>
+  <xi:include  href="sec_TCcaiv.ptx"/>
+  <xi:include  href="sec_CotCc.ptx"/>
+  <xi:include  href="sec_DCafaVatotp.ptx"/>
+  <xi:include  href="sec_Pcop.ptx"/>
+</chapter>

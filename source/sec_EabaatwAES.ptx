@@ -1,0 +1,175 @@
+<section xml:id="sec_EabaatwAES">
+  <title>Encrypting a block at a time with AES</title>
+  <p>
+        <idx><h>block cipher</h></idx>
+        <idx><h>block size</h></idx>
+        <idx><h>Advanced Encryption Standard [AES]</h></idx>
+        <idx><h>AES (Advanced Encryption Standard)</h></idx>
+    Let's get some practice with using a block cipher
+        <idx><h>block cipher</h></idx>
+    by looking at the case of the <em>Advanced Encryption Standard [AES]</em><idx><h>Advanced Encryption Standard [AES]</h></idx>.
+        <idx><h>AES (Advanced Encryption Standard)</h></idx>
+    The key for AES must be of length 16, 24,
+    or 32 bytes [to say it another way: 128, 192,
+    or 256 bits] while its block size
+        <idx><h>block size</h></idx>
+    is 16 bytes [or 128 bits].
+  </p>
+  <p>
+    Standard Python distributions should come with the <c>Crypto</c> package,
+    which includes <c>AES</c><idx><h>Advanced Encryption Standard [AES]</h></idx>
+        <idx><h>AES (Advanced Encryption Standard)</h></idx>
+    among the set of implemented ciphers in <c>Crypto.Cipher</c><idx><h>Crypto [Python module]@<c>Crypto</c> [Python module]</h><h>Crypto.Cipher@<c>Crypto.Cipher</c></h></idx>
+    <idx><h>Python</h><h>Crypto.Cipher module@<c>Crypto.Cipher</c> module</h></idx>.
+    Therefore before you can use AES, you must do
+  </p>
+<program><input>from Crypto.Cipher import AES</input></program>
+  <p>
+    You can then create an object to work with this cipher by
+  </p>
+<program><input>cipher=AES.new(key, AES.MODE_ECB)</input></program>
+  <p>
+    The <c>key</c> must be one of AES's<idx><h>Advanced Encryption Standard [AES]</h></idx>
+        <idx><h>AES (Advanced Encryption Standard)</h></idx>
+    recognized key
+        <idx><h>key</h></idx>
+    sizes,
+        <idx><h>key</h><h>size</h></idx>
+    or else this attempted object creation will throw an error
+    (and we'll discuss what that <c>AES.MODE_ECB</c> is doing later...).
+  </p>
+  <p>
+    An AES object created this way can be used for encryption or decryption
+    (or both)
+    of a block
+        <idx><h>block size</h></idx>
+    of 16 bytes of cleartext or ciphertext,
+    always with the key you used to create the object.
+    For instance,
+    if your key was <c>"asdfghijklmnotuv"</c> then here is an example of encryption
+  </p>
+<program><input>>>> cipher.encrypt("16 bytes of fun!")
+b'~\x94\xaa\xf6\xc20\x85\xce\x83\x91\xc9\}\xdf\x96\xb8\xcf'</input></program>
+  <p>
+    and here is an example of decryption (assuming the key is still <c>"asdfghijklmnotuv"</c>)
+  </p>
+<program><input>>>> cipher.decrypt(
+... b'~\x94\xaa\xf6\xc20\x85\xce\x83\x91\xc9}\xdf\x96\xb8\xcf')
+b'16 bytes of fun!'</input></program>
+  <exercise xml:id="ct_howfastAES">
+    <statement>
+      <p>
+        If AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+            <idx><h>AES (Advanced Encryption Standard)</h></idx>
+        is going to be a useful standard cipher for wide use on the Internet,
+        it should run very fast.
+        Let's test how fast this by timing how long it takes to encrypt one block. ...Actually,
+        to be safe <mdash/> <em>e.g.,</em>
+        in case some other process takes some time on your computer while you think it is only doing an encryption,
+        it is best to do something like 1000 encryptions,
+        measuring the total time, and then dividing that by 1000.
+      </p>
+      <p>
+        A quite direct way to do measure how long something takes is first to run
+      </p>
+      <p>
+         <c>import time</c>
+      </p>
+      <p>
+        You can then save into a variable the number of seconds since the so-called
+        <q>Unix Epoch,</q>
+        (which was 00:00:00 UTC on 1 January 1970) by
+      </p>
+      <p>
+         <c>start_time=time.time()</c>
+      </p>
+      <p>
+        If you then do some processing,
+        you can calculate how long it took with
+      </p>
+      <p>
+         <c>elapsed_time=time.time()-start_time</c>.
+      </p>
+      <p>
+        When using this approach to measuring computational speed,
+        you should be careful only to do the repeated runs of the commands you want to time between the two invocations of <c>time.time()</c> <mdash/> run nothing superfluous!
+        For example,
+        make one AES cipher object before you start the timing,
+        so that the computational cost of building that object doesn't get counted when you are trying to figure out the cost of encryption
+        (or decryption).
+      </p>
+      <p>
+        With all that in mind, make some 16 byte AES key and 16 byte cleartext,
+        time how long it takes to do 1000 encryptions and 1000 decryptions,
+        and report on how long it takes, on average,
+        for each encryption or decryption.
+        It would be nice to change the message and/or the key each of the 1000 times <mdash/> but call some random number generator in the loop,
+        then you'll be timing <em>that</em>
+        as much as encryption/decryption!
+      </p>
+    </statement>
+  </exercise>
+  <exercise xml:id="ct_diffusionAES">
+    <statement>
+      <p>
+        Does AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+            <idx><h>AES (Advanced Encryption Standard)</h></idx>
+        satisfy Shannon's?
+            <idx><h>Shannon, Claude</h></idx>
+        idea of diffusion
+            <idx><h>diffusion</h></idx>
+      </p>
+      <p>
+        To see, take some cleartext of length 16 bytes and make two versions of it which differ by only one bit.
+      </p>
+      <p>
+        Then make a 16 byte key,
+        create an instance of AES, and make ciphertexts for the two different cleartexts
+        (but the same key).
+        Use your program <c>bits_diff_display</c> to see where and how much the two ciphertexts differ.
+      </p>
+      <p>
+        You might also try the above for several different keys,
+        just to make sure that it's not a fluke which is special for the choice of key you happened to make.
+      </p>
+    </statement>
+  </exercise>
+  <exercise xml:id="ct_confusionAES">
+    <statement>
+      <p>
+        Does AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+            <idx><h>AES (Advanced Encryption Standard)</h></idx>
+        satisfy Shannon's?
+            <idx><h>Shannon, Claude</h></idx>
+        idea of confusion
+            <idx><h>confusion</h></idx>
+      </p>
+      <p>
+        To see, take some cleartext of length 16 bytes.
+        Make two different keys of length 16 bytes which differ by only one bit.
+        First with one key,
+        make an AES cipher object and encrypt the fixed cleartext,
+        then do the same using the other key.
+        Use your program <c>bits_diff_display</c> to see where and how much the two resulting ciphertexts differ.
+      </p>
+      <p>
+        You might also try the above for several different ciphertexts,
+        just to make sure that it's not a fluke which is special for the choice of key you happened to make.
+      </p>
+    </statement>
+  </exercise>
+  <question xml:id="az_AES">
+    <statement>
+      <p>
+        Does all of this make sense?
+        What was new or interesting, or what was old and uninteresting?
+        Was it easy or hard to use {<term>Python</term>
+            <idx><h>Python</h></idx>
+        }'s AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+        ?
+            <idx><h>AES (Advanced Encryption Standard)</h></idx>
+        What do you find most annoying and/or convenient about this implementation of AES?
+      </p>
+    </statement>
+  </question>
+</section>

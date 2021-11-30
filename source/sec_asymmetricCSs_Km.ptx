@@ -1,0 +1,349 @@
+<section xml:id="sec_asymmetricCSs_Km">
+  <title>Key management and the need for a robust PKI</title>
+  <p>
+        <idx><h>key</h><h>management</h></idx>
+        <idx><h>PKI, public key infrastructure</h></idx>
+        <idx><h>public key infrastructure, PKI</h></idx>
+    We started this chapter by looking for a new approach which might solve a problem we had with symmetric cryptosystem
+        <idx><h>symmetric cryptosystem</h></idx>
+    s:
+        <idx><h>cryptosystem</h><h>symmetric</h></idx>
+    while they are fast and secure, there are many,
+    many situations in which parties who have never met each other in real life,
+    in a place and situation where they can share a high quality (meaning:
+    large and hard for others to guess) secret key,
+    nevertheless want to communicate securely over the Internet.
+    Asymmetric cryptosystems
+        <idx><h>asymmetric cryptosystem</h></idx>
+    s<idx><h>cryptosystem</h><h>asymmetric</h></idx> solved this problem by breaking a key into two pieces,
+    one of which must be kept secret
+    (the private key
+        <idx><h>private key</h></idx>
+        <idx><h>key</h><h>private</h></idx>
+        <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>
+        <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx>)
+    and one of which must be made public (the public key
+        <idx><h>public key</h></idx>
+        <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+        <idx><h>key</h><h>public</h></idx>.
+        <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+  </p>
+  <p>
+    A significant issue with <idx><h>asymmetric cryptosystems</h></idx>
+        <idx><h>cryptosystem</h><h>asymmetric</h></idx>
+    remains key management,
+        <idx><h>key</h><h>management</h></idx>
+    though: the problem with Aragorn and Bilbo never meeting in person to set up a shared secret key is that,
+    basically,
+    they each have to trust each other's websites where their public key
+        <idx><h>public key</h></idx>
+    s<idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+        <idx><h>key</h><h>public</h></idx>
+        <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+    must be posted.
+    If the website is hacked,
+    or even if the communications channel between one of the participants and the other's website is compromised,
+    then they may end up using not the public key of their intended message recipient,
+    but rather a public key
+        <idx><h>public key</h></idx>
+        <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+        <idx><h>key</h><h>public</h></idx>
+        <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+    the hacker has substituted:
+    this is called a <em>person-in-the-middle attack<idx><h>person-in-the-middle attack</h></idx>
+    </em><fn>
+    Although usually a more gendered term than
+    <q>person</q>
+    is used.
+    </fn>,
+    and it allows the hackers to read and even modify all communications between the parties without them even knowing they have no security!
+  </p>
+  <p>
+    Graphically,
+    the person-in-the-middle attack<idx><h>person-in-the-middle attack</h></idx> works like this:
+  </p>
+  <p>
+    <term>Person-in-the-middle attack on asymmetric cryptosystem
+        <idx><h>asymmetric cryptosystem</h></idx>
+    s:</term>
+  </p>
+  <p>
+    \begin{adjustbox}{center}
+  </p>
+  <tabular>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>Alice</cell>
+      <cell>Eve</cell>
+      <cell>Bob</cell>
+    </row>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell></cell>
+      <cell>generate keys:</cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell></cell>
+      <cell>public <m>k^B_e</m>, private <m>k^B_d</m>;</cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell>intercept<nbsp/><nbsp/><nbsp/><nbsp/> <m>k^B_e\leftarrowtail</m></cell>
+      <cell>publish <m>k^B_e</m></cell>
+    </row>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell>generate keys:</cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell>public <m>k^E_e</m>, private <m>k^E_d</m>;</cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>download <m>k^E_e</m>, thinking it is <m>k^B_e</m></cell>
+      <cell><m>\leftarrowtail k^E_e</m>,<nbsp/><nbsp/>spoof origin <nbsp/></cell>
+      <cell></cell>
+    </row>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>create cleartext message <m>m_A</m>;</cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>using <m>k^E_e</m>, encrypt <m>m_A</m> to <m>c_A</m></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell>and transmit <m>c_A</m></cell>
+      <cell><m>\rightarrowtail c_A</m>, intercept <nbsp/><nbsp/><nbsp/></cell>
+      <cell></cell>
+    </row>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell>using <m>k^E_d</m>, decrypt <m>c_A</m></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell><nbsp/><nbsp/>and recover cleartext <m>m_A</m>;<nbsp/><nbsp/><nbsp/></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell>read <m>m_A</m>, change to <m>m_E</m>  if desired</cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell>using <m>k^B_e</m>, encrypt <m>m_E</m> to <m>c_E</m></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell>spoof origin<nbsp/><nbsp/><m>c_E\rightarrowtail</m></cell>
+      <cell>receive <m>c_E</m>, thinking it is <m>c_A</m></cell>
+    </row>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell></cell>
+      <cell>using <m>k^B_d</m>, decrypt <m>c_E</m></cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell></cell>
+      <cell>\ <nbsp/>and recover cleartext <m>m_E</m><nbsp/><nbsp/><nbsp/></cell>
+    </row>
+    <row>
+      <cell></cell>
+      <cell></cell>
+      <cell>thinking it is <m>m_A</m> from Alice</cell>
+    </row>
+    <row bottom="minor">
+      <cell></cell>
+      <cell></cell>
+      <cell></cell>
+    </row>
+  </tabular>
+  <p>
+    \end{adjustbox}
+  </p>
+  <p>
+    There is also a person-in-the-middle attack<idx><h>person-in-the-middle attack</h></idx> on digital signature
+        <idx><h>digital signature</h></idx>
+    s,
+        <idx><h>signature</h><h>digital</h></idx>
+    based on similar ideas of substituting Eve's public key
+        <idx><h>public key</h></idx>
+        <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+        <idx><h>key</h><h>public</h></idx>
+        <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+    for Bob's, which we leave to the reader to think through for themself.
+  </p>
+  <question xml:id="az_PitMmattack">
+    <statement>
+      <p>
+        Does all of this make sense?
+        What was new or interesting, or what was old and uninteresting?
+        Do you feel comfortable with how the person-in-the-middle attack<idx><h>person-in-the-middle attack</h></idx> works,
+        for communications?
+        What about for digital signature
+            <idx><h>digital signature</h></idx>
+        s?
+            <idx><h>signature</h><h>digital</h></idx>
+      </p>
+    </statement>
+  </question>
+  <problem xml:id="bt_PitMsignatures">
+    <statement>
+      <p>
+        Here's another entirely non-coding Bonus Task:
+      </p>
+      <p>
+        Write out an explanation of the person-in-the-middle attack<idx><h>person-in-the-middle attack</h></idx> for digital signature
+            <idx><h>digital signature</h></idx>
+        s.
+            <idx><h>signature</h><h>digital</h></idx>
+        Include a diagram, like the diagram above called
+        <q>Better [smaller] digital signatures with hashing</q>
+        crossed with the diagram above called
+        <q>Person-in-the-middle attack<idx><h>person-in-the-middle attack</h></idx> on asymmetric cryptosystem
+            <idx><h>asymmetric cryptosystem</h></idx>
+        s.</q>
+      </p>
+    </statement>
+  </problem>
+  <p>
+    Apparently, all of the wonders of asymmetric cryptoasymmetric cryptosystem
+        <idx><h>asymmetric cryptosystem</h></idx>
+    will collapse unless we can already be sure that the networks we use and the websites we visit are never hacked.
+    That is, unless there is some way we can have some sort of
+    <term>root of trust</term>,
+        <idx><h>root of trust</h></idx>
+    a public key
+        <idx><h>public key</h></idx>
+        <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+        <idx><h>key</h><h>public</h></idx>
+        <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+    connected to some real-world entity that we already implicitly trust,
+    and whose security practices we also trust,
+    so that we can be sure that the private key
+        <idx><h>private key</h></idx>
+        <idx><h>key</h><h>private</h></idx>
+        <idx><h>key</h><h>decryption [for an asymmetric cryptosystem]</h></idx>
+        <idx><h>decryption key [for an asymmetric cryptosystem]</h></idx>
+    is kept private.
+  </p>
+  <p>
+    Modern operating systems and browsers come with built-in roots of trust,
+        <idx><h>root of trust</h></idx>
+    which the users don't even know about,
+    but which can be used to verify digital signature
+        <idx><h>digital signature</h></idx>
+    s
+        <idx><h>signature</h><h>digital</h></idx>
+    signed by that entity.
+    Perhaps that entity will have done the work of meeting Jeff Bezos in real life,
+    and then will issue a signature
+        <idx><h>digital signature</h></idx>
+        <idx><h>signature</h><h>digital</h></idx>
+    on Jeff's public key
+        <idx><h>public key</h></idx>
+        <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+        <idx><h>key</h><h>public</h></idx>.
+        <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+    Then if you want to use your credit card on \burl{amazon.com}, you can download Amazon's public key
+        <idx><h>public key</h></idx>
+        <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+        <idx><h>key</h><h>public</h></idx>
+        <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+    along with the root of trust's signature
+        <idx><h>digital signature</h></idx>
+        <idx><h>signature</h><h>digital</h></idx>
+    on that key,
+    which will enable you to trust that that the key which seems to be Amazon's is,
+    in fact, Amazon's.
+  </p>
+  <p>
+    These digital signature
+        <idx><h>digital signature</h></idx>
+    s
+        <idx><h>signature</h><h>digital</h></idx>
+    on someone's public key
+        <idx><h>public key</h></idx>
+        <idx><h>encryption key [for an asymmetric cryptosystem]</h></idx>
+        <idx><h>key</h><h>public</h></idx>
+        <idx><h>key</h><h>encryption [for an asymmetric cryptosystem]</h></idx>
+    are usually called <term>certificate
+        <idx><h>certificate</h></idx>
+    s</term> and the root of trust,
+    in this context, is called a <term>certificate authority</term>.
+        <idx><h>certificate</h><h>authority</h></idx>
+  </p>
+  <p>
+    The broad infrastructure of certificate authorities and public keys which can be trusted,
+    perhaps because of certificates,
+    to be associated with certain real-world persons or organizations is called a
+    <term>public-key infrastructure [PKI]</term><idx><h>public-key infrastructure [PKI]</h></idx>.
+        <idx><h>PKI, public-key infrastructure</h></idx>
+    If the Internet had a robust,
+    reliable public-key infrastructure
+        <idx><h>[PKI]</h></idx>,
+        <idx><h>PKI, public-key infrastructure</h></idx>
+    then we will be able to have widespread secure communication as well as legally binding
+    (digitally signed
+        <idx><h>digital signature</h></idx>
+        <idx><h>signature</h><h>digital</h></idx>)
+    documents on the web.
+    This, then, is the last manifestation of a persistent issue throughout this book:
+    key management
+        <idx><h>key</h><h>management</h></idx>
+    is very hard, but very important,
+    as this necessity of a robust PKI<idx><h>public-key infrastructure [PKI]</h></idx>
+        <idx><h>PKI, public-key infrastructure</h></idx>
+    makes clear yet again.
+  </p>
+  <question xml:id="az_certificatesPKI">
+    <statement>
+      <p>
+        Does all of this make sense?
+        What was new or interesting, or what was old and uninteresting?
+        Do you feel comfortable with the ideas of a root of trust
+        (or certificate authority),
+        certificates, and, in general, a PKI?
+      </p>
+    </statement>
+  </question>
+</section>

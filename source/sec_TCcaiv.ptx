@@ -1,0 +1,420 @@
+<section xml:id="sec_TCcaiv">
+  <title>The Caesar cipher and its variants</title>
+  <introduction>
+    <p>
+      A cryptosystem which dates to ancient times was supposedly used by Julius Caesar.
+          <idx><h>Julius Caesar</h></idx>
+    </p>
+    <definition xml:id="def_caesarcipher">
+      <statement>
+        <p>
+              <idx><h>Caesar cipher</h><h>definition</h></idx>
+          Alice takes her message, removes all spaces and punctuation, and puts it all in one case (maybe lower case).
+          Then she moves each letter <m>k</m> places down the alphabet,
+          wrapping around from <term>z</term>
+          to <term>a</term> if necessary,
+          where <m>k</m> is a fixed whole number known to both Alice and Bob but no one else,
+          called the <term>key</term>.
+          (Often the ciphertext is written entirely in upper case,
+          so it is easier to tell plaintext from ciphertext.)
+        </p>
+        <p>
+          To decrypt, Bob simply moves each letter <m>k</m> places earlier in the alphabet,
+          wrapping past <term>A</term> to
+          <term>Z</term> if necessary:
+          in other words, Bob <term>encrypts</term>
+          the ciphertext with key <m>-k</m> to get the plaintext.
+        </p>
+        <p>
+          This is called the <term>Caesar cryptosystem</term>
+              <idx><h>Caesar cryptosystem</h></idx>
+          or <term>Caesar cipher</term>.
+        </p>
+      </statement>
+    </definition>
+    <p>
+      Apparently Julius Caesar
+          <idx><h>Julius Caesar</h></idx>
+      usually used the key value <m>k=3</m>.
+      His nephew Octavian,
+          <idx><h>Octavian (Augustus)</h></idx>
+      who later became the emperor Augustus,
+          <idx><h>Augustus (Octavian)</h></idx>
+      liked to use <m>k=-1</m>.
+    </p>
+    <p>
+      When using what is called the Latin alphabet
+      (which is not what was used in ancient Rome, though!),
+      with its 26 letters, there is one particularly nice key value: 13.
+      The nice thing about that value is encryption and decryption are exactly the same transformation.
+      In modern times, this transformation is called <term>ROT13</term>,
+          <idx><h>ROT13</h></idx>
+      and it has a small role in the modern history of the Internet.
+      In particular,
+      posts on early chat rooms and bulletin boards would sometimes want to have a bit of content that should not be automatically available to anyone who looks at the post,
+      but would be there for the determined reader
+      (such as, for example,
+      a spoiler in a review of some popular new game, book, or film).
+      These were often included in the post,
+      but only after they had been run through ROT13.
+    </p>
+    <p>
+      A few commercial products used ROT13 for actual security,
+      despite it actually being completely insecure,
+      such as certain parts of some versions of the Windows operating system.
+    </p>
+    <question xml:id="az_Caesar">
+      <statement>
+        <p>
+          Have you heard of the Caesar cipher before?
+          Is it clear to you how to use it?
+        </p>
+      </statement>
+    </question>
+  </introduction>
+  <subsection xml:id="ssec_TCcaiv_komm26">
+    <title>Keys only matter
+    <q>mod 26</q>
+    </title>
+    <p>
+      Notice that if Alice uses the Caesar cipher and key <m>k_{ Alice}=1</m>,
+      her encryption does exactly the same thing as Ann who was using Caesar with key <m>k_{ Ann}=27</m>,
+      because of that part of the definition of the Caesar cryptosystem which says
+      <q>wrapping around from <term>z</term> to <term>a</term></q>: Ann will always go all the way around the alphabet once,
+      but then end up at the same place Alice will.
+      The reason for this is that <m>27=26+1</m>,
+      and encrypting with <m>27</m> goes around the alphabet once <mdash/> from the <m>26</m> <mdash/> and then goes one more step.
+      The same thing would happen if Ann used the key <m>k_{ Ann}=53=2*26+1</m>,
+      in that Ann's encryption process would go around the alphabet <mdash/> twice,
+      in this case,
+      from the <m>2*26</m> <mdash/> and then end up at the same place as Alice's.
+    </p>
+    <p>
+      In fact, if difference between Alice's and Ann's key is any number of <m>26</m>s,
+      then their encryptions will look exactly the same!
+      Mathematicians have a bit of terminology and notation for this:
+    </p>
+    <definition xml:id="def_modulo">
+      <statement>
+        <p>
+              <idx><h>modulo</h></idx>
+              <idx><h>mod</h></idx>
+          Suppose <m>a</m>, <m>b</m>, and <m>n</m> are three whole numbers.
+          Then we say that <term><m>a</m> is equal to <m>b</m> modulo <m>n</m></term>
+          if <m>a-b</m> is a multiple of <m>n</m>;
+          that is, if there is some other whole number <m>k</m> such that <m>a-b=k*n</m>.
+          The notation for that is
+          <me>
+            a\cong b\pmod{n}
+          </me>
+        </p>
+      </statement>
+    </definition>
+    <example>
+      <statement>
+        <p>
+          As we just noticed, <m>1\cong27\pmod{26}</m>.
+        </p>
+      </statement>
+    </example>
+    <example>
+      <statement>
+        <p>
+          ROT13 was so convenient because doing it twice has the effect of doing nothing, because
+          <me>
+            13+13\cong0\pmod{26}
+          </me>
+        </p>
+        <p>
+          Or, thought of another way, since
+          <me>
+            -13\cong13\pmod{26}
+          </me>
+        </p>
+        <p>
+          ROT3 encryption (Caesar with key <m>13</m>) is exactly the same thing as ROT13 decryption (Caesar with key <m>-13</m>).
+        </p>
+      </statement>
+    </example>
+    <question xml:id="az_mod26">
+      <statement>
+        <p>
+          Does all of this make sense?
+          What was new or interesting, or what was old and uninteresting?
+        </p>
+        <p>
+          If you feel comfortable with this new terminology and notation,
+          try to answer the following question: If you have a whole number <m>x</m> and you know that <m>x\cong0\pmod{2}</m>,
+          what would be a more common way of talking about that number?
+          <term>I.e.,</term> you would say that
+          <q><m>x</m> is <fillin/>.</q>
+        </p>
+      </statement>
+    </question>
+    <p>
+      Computer languages usually have a way to work with numbers mod <m>n</m>.
+      For example, Python has a built-in arithmetic operation which is useful here: <c>a%n</c> gives the smallest non-negative whole number which is equal to <c>a</c> mod <c>n</c>.
+    </p>
+    <example xml:id="eg_basicmodsinPy">
+      <statement>
+        <p>
+          From what we noticed above, in {<term>Python</term>
+              <idx><h>Python</h></idx>
+          }
+        </p>
+<program><input>>>> 27
+1</input></program>
+        <p>
+          and
+        </p>
+<program><input>>>> -13
+13</input></program>
+        <p>
+          Even more, we can use this operator to implement the Caesar cipher!
+        </p>
+        <p>
+          First, notice that we can't just add a key to a letter,
+          because the types don't work:
+        </p>
+<program><input>>>> 'a'+2
+Traceback (most recent call last):
+File "&lt;stdin>", line 1, in &lt;module>
+TypeError: must be str, not int</input></program>
+        <p>
+          So we must first convert a character to an <c>int</c> and then back to a character:
+        </p>
+<program><input>>>> chr(ord('a')+3)
+'c'</input></program>
+        <p>
+          Note that <c>ord()</c> takes a single character and converts it to an <c>int</c>,
+          while <c>chr()</c> takes an <c>int</c> and converts it to a single character.
+          It's not so important what are the details of how that works,
+          except to note that the encoding includes all of the lowercase letters,
+          in alphabetical order,
+          in one numerical block from the value <c>ord('a')</c> to the value <c>ord('z')</c>,
+          and all of the uppercase letters,
+          in alphabetical order,
+          in another numerical block from <c>ord('A')</c> to <c>ord('Z')</c>.
+        </p>
+        <p>
+          Actually, that's not going to work with a letter too close to the end of the alphabet,
+          <em>e.g.,</em>
+        </p>
+<program><input>>>> chr(ord('y')+3)
+'|'</input></program>
+        <p>
+          because it didn't
+          <q>wrap around the alphabet.</q>
+        </p>
+        <p>
+          So how about if we take a character in a variable <c>x</c> and do the following:
+          <ol>
+            <li>
+              <p>
+                make it into a number using <c>ord()</c>
+              </p>
+            </li>
+            <li>
+              <p>
+                shift it so that it's in the range from <c>0</c> to <c>25</c> by subtracting <c>ord('a')</c>
+              </p>
+            </li>
+            <li>
+              <p>
+                do the Caesar by adding the value <c>k</c>
+              </p>
+            </li>
+            <li>
+              <p>
+                get it back in the range <c>0</c> to <c>25</c> by doing <c>%26</c>
+              </p>
+            </li>
+            <li>
+              <p>
+                get it in the range <c>ord('A')</c> to <c>ord('Z')</c> by adding <c>ord('A')</c>
+              </p>
+            </li>
+            <li>
+              <p>
+                make it back into a letter using <c>chr()</c>
+              </p>
+            </li>
+          </ol>
+        </p>
+        <p>
+          <em>E.g.,</em> if <c>x='y'</c> and <c>k=4</c> then we would get
+        </p>
+<program><input>>>> chr((ord(x)-ord('a')+k)
+'C'</input></program>
+      </statement>
+    </example>
+    <p>
+      Let's now implement the Caesar cipher in {<term>Python</term>
+          <idx><h>Python</h></idx>
+      }, in steps.
+      First, we should clean up the plaintext string.
+    </p>
+    <exercise xml:id="ct_cleanstring">
+      <statement>
+        <p>
+          Write a Python function which takes an input string and returns a string which is the same except all the non-letter characters have been removed and all the letters have been made to lower case.
+        </p>
+      </statement>
+    </exercise>
+    <p>
+      It might help to know that you can loop through the characters of a string <c>s</c> by doing
+    </p>
+<program><input>for x in s:</input></program>
+    <p>
+      and you can build up a string <c>o</c> for output by starting with
+    </p>
+<program><input>o=''</input></program>
+    <p>
+      and then adding one or more characters in a string variable <c>t</c> to the end of <c>o</c> by doing
+    </p>
+<program><input>o=o+t</input></program>
+    <p>
+      Another, more
+      <q>Pythonic</q>
+      approach is probably to build up a list by the construction
+    </p>
+    <p>
+      which just makes a list each of whose elements is a single character out of the string <c>s</c>.
+      Note you can also do something to the characters as you put them in the list,
+      and you can add a condition to the looping part, such as
+    </p>
+    <p>
+      <mdash/> try it!
+    </p>
+    <exercise xml:id="ct_Caesarencrypt">
+      <statement>
+        <p>
+          <term>Caesar encryption:</term> write a Python function <c>Caesar_encrypt(s, k)</c> which takes an input string <c>s</c> <mdash/> the plaintext <mdash/> and an int <c>k</c> and returns the ciphertext from that plaintext under the Caesar cipher with key <c>k</c>.
+        </p>
+        <p>
+          For example, if you do
+        </p>
+        <p>
+           <c>Caesar_encrypt('All the animals at the zoo!', 3)</c>
+        </p>
+        <p>
+          the output should be
+        </p>
+        <p>
+           <c>'DOOWKHDQLPDOVDWWKHCRR'</c>.
+        </p>
+      </statement>
+    </exercise>
+    <exercise xml:id="ct_Caesardecrypt">
+      <statement>
+        <p>
+          <term>Caesar decryption:</term> Write a Python function <c>Caesar_decrypt(s, k)</c> which takes an input string <c>s</c> <mdash/> the ciphertext <mdash/> and an int <c>k</c> and returns the plaintext from that ciphertext under the Caesar cipher with key <c>k</c>.
+        </p>
+        <p>
+          For example, if you do
+        </p>
+        <p>
+           <c>Caesar_decrypt('DOOWKHDQLPDOVDWWKHCRR', 3)</c>
+        </p>
+        <p>
+          the output should be
+        </p>
+        <p>
+           <c>'alltheanimalsatthezoo'</c>.
+        </p>
+        <p>
+          You might want to do a sanity test on your input and return an error or a null string if the input is not a well-formed ciphertext,
+          <em>i.e.,</em> a string consisting only of uppercase letters.
+        </p>
+      </statement>
+    </exercise>
+  </subsection>
+  <subsection xml:id="ssec_TCcaiv_mtCc">
+    <title>Modernizing the Caesar cipher</title>
+    <p>
+      It seems unfortunate that the Caesar cipher, as we have used it,
+      looses the punctuation in the messages and case of the letters of the message.
+      One way to get around this would be to imagine all of the letters of both cases and all punctuation symbols to be part of a much bigger alphabet,
+      and then to use the same old Caesar with this much bigger alphabet,
+      correspondingly using <c>%N</c>,
+      where <c>N</c> is the new alphabet size,
+      in place of the <c>%26</c> we were using before.
+    </p>
+    <p>
+      Technically,
+      in {<term>Python 3</term>}, strings are made of characters,
+      and characters are encoded using <term>Unicode</term>.
+      Unicode is a way of turning numbers,
+      represented by one, two, or four bytes,
+      into many special symbols as well as letters from many writing systems used around the world.
+    </p>
+    <p>
+      The first 128 symbols in Unicode,
+      which therefore fit into one byte
+      (in fact with the highest-order bit being 0),
+      are just the old ASCII encoding scheme, dating back to 1963,
+      for the English alphabet plus some additional punctuation, symbols,
+      and even non-printing symbols like
+      <q>EOF.</q>
+      The name of the encoding scheme for the subset of Unicode which fits in 8 bits is
+      <q>UTF-8,</q>
+      which includes all of the old ASCII code.
+    </p>
+    <p>
+      Full Unicode in two or four bytes includes many non-Latin alphabets
+      (such as Greek, Cyrillic, hangul, <em>etc.</em>)
+      and even non-alphabetic writing systems like Chinese and Japanese (actually,
+      part of Japanese is non-alphabetic, called
+      <q>kanji,</q>
+      but Japanese also has two different writing systems based on syllable sounds, called
+      <q>hiragana</q>
+      and
+      <q>katakana,</q>, each with 49 symbols), with thousands of ideograms.
+    </p>
+    <question xml:id="az_unicode">
+      <statement>
+        <p>
+          Have you heard of Unicode?
+        </p>
+        <p>
+          If not, you might also read, or at least skim,
+          <url href="https://en.wikipedia.org/wiki/Unicode">the Wikipedia page about Unicode</url>
+          and say what you think of it.
+        </p>
+        <p>
+          Have you ever worked with Unicode in {<term>Python</term>
+              <idx><h>Python</h></idx>
+          }?
+        </p>
+        <p>
+          If so, what did you think of it?
+          If not, you might also read, or at least skim either the Python documentation
+          <url href="https://docs.python.org/3/howto/unicode.html">Unicode HOWTO</url>
+          or the more detailed
+          <url href="https://realpython.com/python-encodings-guide/">Unicode &amp; Character Encodings in Python: A Painless Guide</url>
+          and say what you think about it.
+        </p>
+      </statement>
+    </question>
+    <problem xml:id="bt_generalizedCaesar">
+      <statement>
+        <p>
+          Implement in Python a Caesar-style encryption and decryption which works for a different alphabet than English.
+          Maybe do Spanish
+          (one extra letter: &#xf1;)
+          or German (four extra letters: &#xe4;, &#xf6;, &#xfc;, &#223;)....
+        </p>
+        <p>
+          <term>Or</term>, maybe implement Caesar with the English alphabet,
+          but figure out some way to keep the punctuation as well.
+          It seems like it might be giving away too much information to leave the spaces and punctuation the same in the ciphertext as it was in the plaintext,
+          but can you do something interesting with it?
+        </p>
+        <p>
+          <term>Or</term>,
+          maybe implement a Caesar-style cryptosystem which handles all of ASCII, or UTF-8, or all of Unicode!
+        </p>
+      </statement>
+    </problem>
+  </subsection>
+</section>

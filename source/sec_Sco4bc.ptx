@@ -1,0 +1,317 @@
+<section xml:id="sec_Sco4bc">
+  <title>Some concluding observations for block ciphers</title>
+  <p>
+    Modern block ciphers like AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+        <idx><h>AES (Advanced Encryption Standard)</h></idx>
+    can run quite fast
+    (that should have been the conclusion of Coding <xref ref="ct_howfastAES">Task</xref>).
+    Using some, but not all, block chaining
+        <idx><h>block chaining</h></idx>
+    modes, they can satisfy Shannon's
+        <idx><h>Shannon, Claude</h></idx>
+    diffusion
+        <idx><h>diffusion</h></idx>
+    condition, at least a sort of <em>forward diffusion<idx><h>forward diffusion</h></idx>
+        <idx><h>diffusion, forward</h></idx>
+    </em> in that when two messages differ by one bit,
+    then about half the bits in the corresponding blocks in the two ciphertexts are different,
+    and also for all blocks after
+    (but not before!)
+    that one.
+  </p>
+  <p>
+    This makes block ciphers quite good to use in practice... assuming they're secure.
+    Fortunately, at the moment, there is no known,
+    general-purpose attack against the AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+        <idx><h>AES (Advanced Encryption Standard)</h></idx>
+    cryptosystem better than brute force.
+        <idx><h>brute-force attack</h></idx>
+  </p>
+  <p>
+    Let's think through some issues around a brute-force attack
+        <idx><h>brute-force attack</h></idx>
+    on AES<idx><h>Advanced Encryption Standard [AES]</h></idx>.
+        <idx><h>AES (Advanced Encryption Standard)</h></idx>
+    The key
+        <idx><h>key</h></idx>
+    size
+        <idx><h>key</h><h>size</h></idx>
+    we've been using is 16 bytes, or 128 bits.
+    If a random key is chosen,
+    then <m>2^{127}</m> keys will have to be tried,
+    on average, in a brute-force attack
+        <idx><h>brute-force attack</h></idx>
+    before the correct one is guessed.
+    <m>2^127</m> is about <m>1.7\times10^{38}</m>,
+    which means that if you could check a billion possible keys a second,
+    then it would take roughly 100 billion times the life of universe
+    (which is around <m>4.3\times10^{17}</m> seconds)
+    to do one brute-force attack
+        <idx><h>brute-force attack</h></idx>
+    on AES<idx><h>Advanced Encryption Standard [AES]</h></idx>.
+        <idx><h>AES (Advanced Encryption Standard)</h></idx>
+  </p>
+  <exercise xml:id="ct_bruteforceAESattack">
+    <statement>
+      <p>
+        We should at least try a brute-force attack
+            <idx><h>brute-force attack</h></idx>
+        against AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+            <idx><h>AES (Advanced Encryption Standard)</h></idx> ... at least in a very special case (we don't want to wait billions of times the life of the universe!).
+      </p>
+      <p>
+        Suppose Eve thinks Alice has sent her password to Bob in a message which was encrypted with the AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+            <idx><h>AES (Advanced Encryption Standard)</h></idx>
+        cipher using Electronic Code Book<idx><h>Electronic Codebook (ECB) mode block chaining</h></idx>
+            <idx><h>block chaining</h><h>Electronic Code Book (ECB) mode</h></idx>
+            <idx><h>ECB mode block chaining</h></idx>
+        mode chaining.
+        Eve also knows that Alice and Bob's favorite number is 17,
+        so she thinks that they will probably use a key which is mostly 17s.
+        In fact, Eve guesses that the key will be 15 bytes all with the value 17 followed by one new,
+        random byte.
+      </p>
+      <p>
+        Eve can try all possible keys of this form with code like this:
+      </p>
+<program><input>key_ints=[17]*16  # last 17 is probably not right,
+# it's just here to make a list of
+# the correct length
+for i in range(256):
+key_ints[15]=i
+possible_key=bytes(key_ints)
+# make an AES object with that possible_key
+# and use it to try decrypting the ciphertext</input></program>
+      <p>
+        Eve also guesses that the word
+        <q>password</q>
+        will appear in the cleartext. {{<term>Python</term>
+            <idx><h>Python</h></idx>
+        }} has a nice command to check if a substring is present in a string,
+        the command <c>in</c>,
+        which works both with normal strings and substrings and also byte strings and potential byte substrings.
+        Eve can use this as follows:
+      </p>
+<program><input># inside a loop making attempted decryptions which
+# are in a variable possible_cleartext
+if b'password' in possible_cleartext:
+print('Found the cleartext!  It should be: ',end='')
+print(possible_cleartext)</input></program>
+      <p>
+        If Eve were to try the above approach to decrypt the stolen ciphertext
+      </p>
+<program><input>b"h9\xf2\x12,\x5e.\xab\xf4M\x1e\xf5\xc9\xcea\r"</input></program>
+      <p>
+        what password would she find,
+        and what would be the key that unlocked it? [Show all of Eve's code as well as answering those questions!]
+      </p>
+    </statement>
+  </exercise>
+  <exercise xml:id="ct_harderbruteforceAESattack">
+    <statement>
+      <p>
+        Repeat the previous Code <xref ref="ct_bruteforceAESattack">Task</xref>,
+        but suppose now that Eve thinks that only the first 14 bytes of the key are 17s,
+        the last two might be anything.
+      </p>
+      <p>
+        In this situation, try to use the same general approach
+        (but probably with two nested loops,
+        to try all 256 possible bytes in both of the last two bytes of the key)
+        to decrypt the stolen ciphertext
+      </p>
+<program><input>b"\xe0\xb3W\x94/X\xe7.\x93\xda\xe9\xed\xde\xedT\xfe"</input></program>
+    </statement>
+  </exercise>
+  <problem xml:id="bt_hardestbruteforceAESattack">
+    <statement>
+      <p>
+        Repeat the prior Code <xref ref="ct_bruteforceAESattack">Task</xref> one more time,
+        but suppose now that Eve thinks that 15 of the bytes of the key are 17s,
+        while the last byte <mdash/> call it the
+        <q>wildcard key byte</q>
+        <mdash/> might be anything ... and that wildcard byte might be at any location of the key.
+      </p>
+      <p>
+        In this situation, try to use the same general approach
+        (but probably with two nested loops,
+        one to loop through the 16 possible locations for the wildcard key byte,
+        the other then to try all 256 possible values for the wildcard byte)
+        to decrypt the stolen ciphertext
+      </p>
+<program><input>b"0\xbd\x9e*\x9b\xd4\x03\xa58&lt;\xfa\x0e\x86J\xfd@"</input></program>
+    </statement>
+  </problem>
+  <p>
+    In the Code <xref ref="ct_bruteforceAESattack">Tasks</xref>
+    and <xref ref="ct_harderbruteforceAESattack"></xref>
+    and the Bonus <xref ref="bt_hardestbruteforceAESattack">Task</xref> above,
+    we imagined that Eve would somehow know that the cleartext behind the ciphertext she had stolen contained the substring <c>b'password'</c>.
+    This kind of thing has a name:
+  </p>
+  <definition xml:id="def_crib">
+    <statement>
+      <p>
+        If a cryptanalyst is trying to discover the cleartext which generated a particular ciphertext and knows
+        (or at least hopes)
+        some substring of the unknown full cleartext,
+        then that substring is called a <term>crib</term>.
+            <idx><h>crib</h></idx>
+      </p>
+    </statement>
+  </definition>
+  <p>
+    Cribs are actually not all that uncommon.
+    Cleartexts often have a standard header which includes the date and time,
+    which the cryptanalyst might know for other reasons,
+    so the correctly formatted time-and-date string can be used as a crib.
+    Famously, the Nazi military communications during WWII always included a well-known phrase signaling fealty to the leader of the Third Reich<fn>
+    Which we will not quote exactly here,
+    because it would be unpleasant to have that odious phrase be a substring of this book!
+    </fn>,
+    which could be used as a crib.
+  </p>
+  <question xml:id="az_cribs">
+    <statement>
+      <p>
+        Does all of this make sense?
+        What was new or interesting, or what was old and uninteresting?
+        Can you think of a
+        <q>crib</q>
+        in messages you often send or receive,
+        maybe to or from a family member, or someone
+        (or some organization)
+        with which you regularly communicate on the 'net for work, school,
+        or entertainment?
+      </p>
+    </statement>
+  </question>
+  <problem xml:id="bt_enigma">
+    <statement>
+      <p>
+        Here's an entirely non-coding Bonus Task:
+      </p>
+      <p>
+        Cribs were very important in cracking the Enigma cryptosystem which was used by the Nazis during WWII <mdash/> which shortened the war by years,
+        it has been estimated
+        (see
+        <q><url href="https://www.bbc.com/news/technology-18419691">Alan Turing: The codebreaker who saved 'millions of lives'</url></q>
+        from
+        <url href="https://www.bbc.com/">The BBC</url>).
+      </p>
+      <p>
+        Write a one-page (or so)
+        <q>mini-paper</q>
+        on the Enigma, as a cryptosystem,
+        its role in history, and something about how it was cracked.
+        This should include
+        <ul>
+          <li>
+            <title>invalidlabel</title>
+            <p>
+              A short description of how the Enigma cryptosystem worked <mdash/> use as many of the technical terms from this course that you can (<em>e.g,</em>,
+              what was the <em>keyspace
+                <idx><h>keyspace</h></idx>
+              </em>, was it a <em>mono-</em><idx><h>monoalphabetic cryptosystem</h></idx> or
+              <em>polyalphabetic cryptosystem<idx><h>polyalphabetic cryptosystem</h></idx>
+              </em> or neither, <em>etc.</em>);
+              this should be about half of your
+              <q>mini-paper.</q>
+            </p>
+          </li>
+          <li>
+            <title>invalidlabel</title>
+            <p>
+              A very short description of the Enigma's historical role in the war;
+              about one sixth of your
+              <q>mini-paper.</q>
+            </p>
+          </li>
+          <li>
+            <title>invalidlabel</title>
+            <p>
+              A short, very high-level description of the effort made by the Allies to crack the Enigma cryptosystem <mdash/> mention <em>cribs
+                <idx><h>cribs</h></idx>
+              </em>; about one third of your
+              <q>mini-paper.</q>
+            </p>
+          </li>
+        </ul>
+      </p>
+      <p>
+        Sources you might use are:
+        <ul>
+          <li>
+            <title>invalidlabel</title>
+            <p>
+              The BBC story mentioned above.
+            </p>
+          </li>
+          <li>
+            <title>invalidlabel</title>
+            <p>
+              <url href="https://en.wikipedia.org/wiki/Enigma_machine">The Wikipedia page
+              <q>Enigma machine</q></url>
+            </p>
+          </li>
+          <li>
+            <title>invalidlabel</title>
+            <p>
+              <url href="https://en.wikipedia.org/wiki/Cryptanalysis_of_the_Enigma">The Wikipedia page
+              <q>Cryptanalysis of the Enigma</q></url>
+            </p>
+          </li>
+          <li>
+            <title>invalidlabel</title>
+            <p>
+              <url href="https://cryptomuseum.com/index.htm">The Crypto Museum</url>
+              's<nbsp/>page<nbsp/>
+              <q><url href="https://cryptomuseum.com/crypto/enigma/hist.htm">History of the Enigma</url></q>
+            </p>
+          </li>
+        </ul>
+      </p>
+    </statement>
+  </problem>
+  <p>
+    We have seen that block ciphers can be fast,
+    easy to use, and highly secure.
+  </p>
+  <p>
+    But we did see that the security is based in part on the size
+        <idx><h>key</h><h>size</h></idx>
+    of, and lack of structure in, the key
+        <idx><h>key</h></idx>
+    s: it was that keyspace
+        <idx><h>keyspace</h></idx>
+    of size <m>2^128</m>, along with a lack of some foolish structure like
+    <q>15 of the 16 bytes are just representations of the number 17,</q>
+    which made AES<idx><h>Advanced Encryption Standard [AES]</h></idx>
+        <idx><h>AES (Advanced Encryption Standard)</h></idx>
+    so secure.
+  </p>
+  <p>
+    Which means that it is really important for Alice and Bob to be able to share <mdash/> very accurately,
+    since even a single incorrect bit with scramble their messages catastrophically!
+    <mdash/> a large, random-seeming key.
+        <idx><h>key</h></idx>
+    In the modern, networked, world,
+    where we often want to share valuable information very securely with people whom we may have never met in person,
+    this is a serious defect.
+    You may want to get your credit card number to an online store from your laptop,
+    first through the open WiFi at a coffee shop, then across the
+    (insecure by design)
+    Internet!
+    Cryptography is clearly a vital tool to do a thing like that,
+    but the cryptosystems we have seen so far all require a shared secret, the key,
+        <idx><h>key</h></idx>
+    which is hard to achieve in common modern situations like this.
+  </p>
+  <p>
+    In the next chapter we start to talk a solution to this problem of key
+        <idx><h>key</h></idx>
+    sharing: cryptosystems where [part of] the key
+        <idx><h>key</h></idx>
+    s can be public,
+  </p>
+</section>

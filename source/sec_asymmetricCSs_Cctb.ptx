@@ -1,0 +1,166 @@
+<section xml:id="sec_asymmetricCSs_Cctb">
+  <title>Conclusions; consider the blockchain</title>
+  <p>
+    At first the idea of an asymmetric cryptosystem
+        <idx><h>asymmetric cryptosystem</h></idx>
+    can seem a bit like magic.
+    In fact, it must be admitted that the security of all of such cryptosystems in wide use today is based on assumptions that seem very reasonable but are not known with mathematical certainty:
+    for example, the security of RSA
+        <idx><h>cryptosystem</h><h>RSA</h></idx>
+        <idx><h>RSA cryptosystem</h></idx>
+    is based on the assumption that it is impossible to factor large numbers in a reasonable amount of time
+    (for a certain precise meaning of the word
+    <q>reasonable</q>).
+  </p>
+  <p>
+    (Interestingly,
+    the best known attack on this particular assumption, using a quantum computer,
+        <idx><h>quantum computer</h></idx>
+    seemed for a long time like science fiction,
+    but now seems like it definitely will start to be deployed at least by entities such as nation-states which have sufficient resources.
+    Leave it to science fiction to be the best weapon against magic!)
+  </p>
+  <p>
+    How well all of the assumptions underlying asymmetric crypto
+        <idx><h>asymmetric cryptosystem</h></idx>
+    stand the test of time, and whether practical,
+    quantum-resistant asymmetric cryptosystem
+        <idx><h>asymmetric cryptosystem</h></idx>
+    s can be designed and implemented is a question of enormous importance in the next decade(s) of history of the Internet.
+    While that cliff-hanger is being resolved by hard-working technologists behind the scenes,
+    there are other exotic applications of asymmetric crypto
+        <idx><h>asymmetric cryptosystem</h></idx>
+    which have been developed and which offer amazing potential benefits ... some which are, indeed,
+    almost certainly too good to be true.
+  </p>
+  <p>
+    One example of this is something that has come to be widely discussed recently,
+    called a <term>blockchain</term>,
+        <idx><h>blockchain</h></idx>
+    which you have probably heard of as the architecture underlying the cryptocurrency
+        <idx><h>cryptocurrency</h></idx>
+    <term>Bitcoin</term>.
+        <idx><h>Bitcoin</h></idx>
+    If you worked in education, you would also have heard of blockchain
+        <idx><h>blockchain</h></idx>
+    s as, supposedly, the best place for high school diplomas,
+    college transcripts, and professional certificates to be stored.
+  </p>
+  <p>
+    A blockchain
+        <idx><h>blockchain</h></idx>
+    starts with a data structure called a <term>hash chain</term>,
+        <idx><h>hash chain</h></idx>
+    which is basically just a sequence of data blocks that can keep growing
+    (potentially forever),
+    with one additional field in each block:
+    the hash (under some cryptographic hash function
+        <idx><h>hash function</h></idx>
+    ) of the previous block.
+    Note that since that previous block contained the hash of the block which preceded it,
+    these hashes implicitly link all the blocks back to the very first block of the chain,
+    which is often called <term>genesis block</term>.
+        <idx><h>genesis block</h></idx>
+  </p>
+  <p>
+    Graphically:
+  </p>
+  <p>
+    \begin{adjustbox}{center}
+  </p>
+  <image>
+<latex-image>
+<![CDATA[\begin{tikzpicture}\path (0,0) node[place,draw] (gen) {Genesis block:
+\nodepart{second}
+\ \\
+data\\
+\
+\nodepart{third}
+null}
+(5,0) node[place,draw] (one) {Block 1:
+\nodepart{second}
+\ \\
+data\\
+\
+\nodepart{third}
+}
+(10,0) node[place,draw] (two) {Block 2:
+\nodepart{second}
+\ \\
+data\\
+\
+\nodepart{third}
+}
+(14,0) node (dots) {\knownterminology{.\ .\ .\ .}};;
+\draw[<-*] (gen) to [out=90,in=270] node[above,sloped] {hash of} ([yshift=-8.5mm] one);
+\draw[<-*] (one) to [out=90,in=270] node[above,sloped] {hash of} ([yshift=-8.5mm] two);
+\draw[<-*] (two) to [out=90,in=270] node[above,sloped] {hash of} (dots);\end{tikzpicture}]]>
+</latex-image>
+  </image>
+  <p>
+    \end{adjustbox}
+  </p>
+  <p>
+    The security properties of cryptographic hash function
+        <idx><h>hash function</h></idx>
+    s given in <xref ref="def_hashfunction">Definition</xref> give hash chain
+        <idx><h>hash chain</h></idx>
+    s a remarkable property: they are <term>immutable</term>,
+        <idx><h>immutable</h></idx>
+    meaning they cannot be changed.
+    Specifically, what that means is that if a whole bunch of people
+    (call them
+    <q>the hobbits</q>
+    )
+    are sharing copies of a hash chain, then someone else
+    (call this person
+    <q>Gollum</q>
+    )
+    cannot come to them and pretend that they have a valid copy of the chain which is the same at the beginning and the end,
+    but has some extra blocks added in the middle.
+    The reason this is impossible is that the first block <mdash/> say it's block number 141592 near the end where Gollum agrees with the hobbits would have the hash of two different
+    <q>previous</q>
+    blocks: the hobbits would just have the same block they all agree is number 141591,
+    while Gollum would have that extra block he was trying to sneak into the chain ... and those two different pieces of data cannot have the same hash
+    (or, at least,
+    it is very hard to figure out what data should be in the block to make it have the same hash value).
+  </p>
+  <question xml:id="az_hashchain">
+    <statement>
+      <p>
+        Does all of this make sense?
+        What was new or interesting, or what was old and uninteresting?
+        Do you feel comfortable with the ideas of a hash chain,
+        and with why it is immutable?
+      </p>
+    </statement>
+  </question>
+  <p>
+    Several additional features make a hash chain
+        <idx><h>hash chain</h></idx>
+    into a blockchain.
+        <idx><h>blockchain</h></idx>
+    These include the fact that parts of the data in the blocks must have valid digital signature
+        <idx><h>digital signature</h></idx>
+    s
+        <idx><h>signature</h><h>digital</h></idx>
+    <mdash/> a topic we have discussed in this chapter!
+    <mdash/> and that the new blocks are the result of a
+    <term>consensus protocol</term>.
+        <idx><h>consensus protocol</h></idx>
+    Such protocols enable everyone who gets a copy of the blockchain
+        <idx><h>blockchain</h></idx>
+    to have confidence that they have the same chain of data blocks as everyone else who is using that blockchain.
+        <idx><h>blockchain</h></idx>
+  </p>
+  <p>
+    Consensus protocols
+        <idx><h>consensus protocol</h></idx>
+    are a topic in even more advanced cryptology classes:
+    don't stop here, there is much more that is fun, useful,
+    and powerful to learn about in this field!
+  </p>
+  <p>
+        <idx><h>cryptographic hash function</h><h>see{hash function}</h></idx>
+  </p>
+</section>

@@ -1,0 +1,75 @@
+<chapter xmlns:xi="http://www.w3.org/2001/XInclude"  xml:id="chap_release-notes">
+  <title>Release Notes</title>
+  <p>
+    This is a first draft of a free (as in speech, not as in beer,
+    <xref ref="stallman2002free"/>)
+    (although it is free as in beer as well)
+    textbook for a one-semester, undergraduate cryptology course.
+    It was used for CIS 491 at Colorado State University Pueblo in the spring semester of 2021.
+  </p>
+  <p>
+    It's not clear that any other instructor would feel comfortable using this version,
+    without a lot of adaptation.
+    In fact, I usually find that when I write an open textbook like this one,
+    during the semester in which I am teaching the class,
+    what results is a little rough and has a few real gaps.
+    After another semester teaching with this book, the second version
+    (which could well be twice as long!)
+    will likely be much easier to use by others.
+  </p>
+  <p>
+    Nevertheless,
+    in the spirit of openness, I'm sharing this first draft as well:
+    if you want to use it for self-study or in a class you are teaching,
+    feel free to do so <mdash/> just makes sure your seatbelt is fastened,
+    as the ride might be a little bumpy at times. [That said,
+    if you do use this and find typos, thinkos,
+    or other issues, I would be grateful if you would tell me about them!]
+  </p>
+  <p>
+    As I make improvements and additions to this work,
+    you will always be able to find them on the page \burl{https://poritz.net/jonathan/share/owoc/}, so please look there for the best version.
+  </p>
+  <figure>
+    {r}{0.25\textwidth}
+    <image width="73%" source="by-sa.eps"/>
+  </figure>
+  <p>
+    I am releasing this work under a
+    <term>Creative Commons Attribution-ShareAlike 4.0 International</term> license,
+    which allows anyone to <term>share</term>
+    (copy and redistribute in any medium or format)
+    and <term>adapt</term>
+    (remix, transform,
+    and build upon this work for any purpose, even commercially).
+    These rights cannot be revoked,
+    so long as users follow the license terms,
+    which require <term>attribution</term>
+    (giving appropriate credit,
+    linking to the license, and indicating if changes were made)
+    to be given and <term>share-alike</term>
+    (if you remix or transform this work,
+    you must distribute your contributions under the same license as this one)
+    to be respected.
+    See
+    <url href="https://creativecommons.org/licenses/by-sa/4.0">creativecommons.org/licenses/by-sa/4.0</url>
+    for all the details.
+  </p>
+  <p>
+    This version: \expandafter\tsgutsa \tsval\relax.
+  </p>
+  <tabular>
+    <row>
+      <cell>Jonathan A.<nbsp/> Poritz</cell>
+    </row>
+    <row>
+      <cell>Spring Semester, 2021</cell>
+    </row>
+    <row>
+      <cell>Pueblo, CO, USA</cell>
+    </row>
+  </tabular>
+  <p>
+    \begin{preface}
+  </p>
+</chapter>
